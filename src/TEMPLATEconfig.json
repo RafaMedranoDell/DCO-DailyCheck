@@ -1,0 +1,244 @@
+{
+    "basePath": "",
+    "logPath": "files/logs",
+    "jsonPath": "files/json",
+    "csvPath": "files/csv",
+    "reportPath": "files/reports",
+    "customer": {
+        "name": "",
+        "smtpServer": "",
+        "smtpPort": "587",
+        "senderEmail": "",
+        "receiverEmail": ""
+    },
+    "systems": {
+        "PPDM": {
+            "cfg": {
+                "api_port": 8443
+            },
+            "files": {
+                "json": {
+                    "activitiesNotOK": "activitiesNotOK.json",
+                    "jobGroupActivitiesSummary": "JobGroup_activities_summary.json",
+                    "systemHealthIssues": "system_health_issues.json",
+                    "storageSystems": "storage_systems.json"
+                },
+                "csv": {
+                    "healthByCategory": "health_by_category.csv",
+                    "healthEvents": "health_events.csv",
+                    "healthSystemStatus": "health_system_status.csv",
+                    "jobgroupSummary": "jobgroup_activities_summary.csv",
+                    "jobgroupRate": "jobgroup_activities_rate.csv",
+                    "activitiesNoOkSummary": "activities_no_ok_summary.csv",
+                    "storageSystems": "storage_systems.csv",
+                    "unifiedData": "unified_data.csv"
+                }
+            },
+            "instances": [
+                {
+                    "hostname": "",
+                    "username": "",
+                    "password": "",
+                    "certHash": ""
+                }
+            ]
+        },
+        "PPCR": {
+            "cfg": {
+                "api_port": 14778
+            },
+            "files": {
+                "json": {
+                    "alerts": "alerts.json",
+                    "policies": "policies.json",
+                    "policies_jobs": "policies_jobs.json",
+                    "cs_report": "cs_report.json",
+                    "dashboard": "dashboard.json"
+                },
+                "csv": {
+                    "alertSummary": "alert_summary.csv",
+                    "alertDetail": "alert_detail.csv",
+                    "systemJobs": "system_jobs.csv",
+                    "protectionJobs": "protection_jobs.csv",
+                    "recoveryJobs": "recovery_jobs.csv",
+                    "policiesDetail": "policies_detail.csv",
+                    "cs_capacity": "cs_capacity.csv",
+                    "cs_expiration": "cs_expiration.csv",
+                    "systemSummary": "system_summary.csv"
+                }
+            },
+            "instances": [
+                {
+                    "hostname": "",
+                    "username": "",
+                    "password": "",
+                    "certHash": ""
+                }
+            ]
+        },
+        "OS10": {
+            "cfg": {
+                "api_port": 443
+            },
+            "files": {
+                "json": {
+                    "alarm-summary": "alerts_summary.json",
+                    "event-history": "event_history.json",
+                    "equipment": "equipment.json",
+                    "ports": "ports.json"
+                },
+                "csv": {
+                    "alertSummary": "alert_summary.csv",
+                    "alertDetail": "alert_detail.csv",
+                    "powersuplies": "powersuplies.csv",
+                    "fans": "fans.csv",
+                    "thermal": "thermal.csv",
+                    "port_status": "port_status.csv",
+                    "systemSummary": "system_summary.csv"
+                }
+            },
+            "instances": [
+                {
+                    "hostname": "",
+                    "username": "",
+                    "password": "",
+                    "certHash": "",
+                    "info": {
+                        "ports_up": [
+                            "phy-eth1/1/1",
+                            "phy-eth1/1/2",
+                            "phy-eth1/1/3"
+                        ]
+                    }
+                }
+            ]
+        },
+        "DD": {
+            "cfg": {
+                "api_port": 3009
+            },
+            "files": {
+                "json": {
+                    "activeAlerts": "active_alerts.json",
+                    "services": "services.json",
+                    "replicas": "replicas.json",
+                    "tiers": "tiers.json",
+                    "filesys": "filesystem.json"
+                },
+                "csv": {
+                    "alertsBySeverity": "alerts_by_severity.csv",
+                    "alertsByClass": "alerts_by_class.csv",
+                    "alertsByClassReduced": "alerts_by_class_reduced.csv",
+                    "alertsDetail": "alerts_detail.csv",
+                    "servicesStatus": "services_status.csv",
+                    "replicasStatus": "replicas_status.csv",
+                    "tiersStatus": "tiers_status.csv",
+                    "filesysStatus": "filesys_status.csv",
+                    "systemSummary": "system_summary.csv"
+                }
+            },
+            "instances": [
+                {
+                    "hostname": "",
+                    "username": "",
+                    "password": "",
+                    "certHash": ""
+                }
+            ]
+        },
+        "ECS": {
+            "cfg": {
+                "api_port": 4443
+            },
+            "files": {
+                "json": {
+                    "alerts": "alerts.json",
+                    "localzoneInfo": "localzone_info.json"
+                },
+                "csv": {
+                    "alertsDetail": "alertsDetail.csv",
+                    "localzoneInfo": "localzone_info.csv",
+                    "nodes": "nodes.csv",
+                    "disks": "disks.csv",
+                    "alerts": "alerts.csv",
+                    "space": "space.csv",
+                    "systemSummary": "system_summary.csv"
+                }
+            },
+            "instances": [
+                {
+                    "hostname": "",
+                    "username": "",
+                    "password": "",
+                    "certHash": ""
+                }
+            ]
+        },
+        "IDRAC": {
+            "cfg": {
+                "api_port": 443
+            },
+            "files": {
+                "json": {
+                    "chassis": "chassis.json",
+                    "system": "system.json",
+                    "processors": "processors.json",
+                    "power": "power.json",
+                    "storage": "storage.json",
+                    "thermal": "thermal.json",
+                    "logs": "logs.json",
+                    "endpoints": "endpoints.json"
+                },
+                "csv": {
+                    "chassis": "chassis.csv",
+                    "system": "system.csv",
+                    "processors": "processors.csv",
+                    "powersupplies": "powersupplies.csv",
+                    "fans": "fans.csv",
+                    "storage": "storage.csv",
+                    "thermal": "thermal.csv",
+                    "log_sel": "log_sel.csv",
+                    "log_lc": "log_lc.csv",
+                    "log_faults": "log_faults.csv",
+                    "systemSummary": "systemSummary.csv"
+                }
+            },
+            "instances": [
+                {
+                    "hostname": "",
+                    "username": "",
+                    "password": "",
+                    "certHash": ""
+                }
+            ]
+        },
+        "VC": {
+            "files": {
+                "json": {
+                    "appliance_health": "appliance_health.json",
+                    "alarms": "alarms.json",
+                    "hosts": "hosts.json",
+                    "datastores": "datastores.json",
+                    "vms": "vms.json"
+                },
+                "csv": {
+                    "systemSummary": "system_summary.csv",
+                    "datastoreStatus": "datastore_status.csv",
+                    "vmStatus": "vm_status.csv",
+                    "alertsDetail": "alerts_detail.csv"
+                }
+            },
+            "instances": [
+                {
+                    "hostname": "10.3.64.16",
+                    "username": "dco-monitor@vsphere.local",
+                    "certFile": "",
+                    "encrypted_password": "password"
+                }
+            ],
+            "cfg": {
+                "api_port": 443
+            }
+        }
+    }
+}
