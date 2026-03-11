@@ -54,15 +54,23 @@ def create_DCI(dcocfg, dcorpt):
             dcorpt.add_table("Compute", "vSphere", instance, "Datastore Capacity Detail", ds_detail, tableset="Overview")
 
         # --- 2. VM Status Table ---
-        vm_detail = DCOreport.csv_to_styleddf(system, instance, "vmStatus", dcocfg)
-        if not vm_detail.data.empty:
-            # Apply color to rows where VM is not POWERED_ON
-            vm_detail = vm_detail.apply(color_vm_state, axis=1)
+        # Load raw dataframe first to filter
+        df_vms = dcocfg.load_csv_to_dataframe(system, instance, "vmStatus")
+        if not df_vms.empty:
+            # Filter to keep only VMs that are NOT POWERED_ON
+            df_off_vms = df_vms[df_vms["power_state"] != "POWERED_ON"]
             
-            # Column word wrap for VM names if they are long
-            vm_detail = DCOreport.column_wordwrap(vm_detail, ["name"])
-            
-            dcorpt.add_table("Compute", "vSphere", instance, "VM Power Status Detail", vm_detail, tableset="Overview")
+            if not df_off_vms.empty:
+                # Create styled dataframe from the filtered results
+                vm_detail = DCOreport.table_base_styler(df_off_vms)
+                
+                # Apply color to rows (they will all be colored as they are not POWERED_ON)
+                vm_detail = vm_detail.apply(color_vm_state, axis=1)
+                
+                # Column word wrap for VM names if they are long
+                vm_detail = DCOreport.column_wordwrap(vm_detail, ["name"])
+                
+                dcorpt.add_table("Compute", "vSphere", instance, "VM Power Status Detail", vm_detail, tableset="Overview")
             
         # --- 3. Alerts Detail Table ---
         # This will contain trigged alarms from the last scan
