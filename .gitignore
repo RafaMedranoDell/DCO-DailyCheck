@@ -1,0 +1,12 @@
+*.pyc
+__pycache__
+*.log
+*.zip
+*.tgz
+*.json
+*.csv
+*.html
+*.xlsx
+!TEMPLATEconfig.json
+config_encrypted.json.*
+commit.txt
