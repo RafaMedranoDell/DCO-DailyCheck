@@ -1,7 +1,9 @@
 import functools
 import pandas as pd
+import common.functions as fn
 from common.DCOconfig import DCOconfig
 import common.DCOreport as DCOreport
+
 
 
 
@@ -55,12 +57,22 @@ def create_DCI(dcocfg, dcorpt):
 
         systemJobs = DCOreport.csv_to_styleddf(system, instance, "systemJobs", dcocfg)
         if not systemJobs.data.empty:
+            # Reformat 'Elapsed seconds' as requested using common function
+            if "Elapsed seconds" in systemJobs.data.columns:
+                systemJobs.data["Elapsed seconds"] = pd.to_numeric(systemJobs.data["Elapsed seconds"], errors='coerce').fillna(0).apply(fn.format_duration)
+                systemJobs.data = systemJobs.data.rename(columns={"Elapsed seconds": "Elapsed time"})
+            
             systemJobs = DCOreport.column_wordwrap(systemJobs, columns=['Detailed description'])
             systemJobs = systemJobs.apply(color_jobsByStatus, axis=1)
             dcorpt.add_table("Protection", "PowerProtect Cyber Recovery", f"Instance {instance}", "System Jobs", systemJobs, tableset="ts4")
 
         protectionJobs = DCOreport.csv_to_styleddf(system, instance, "protectionJobs", dcocfg)
         if not protectionJobs.data.empty:
+            # Reformat 'Elapsed seconds' as requested using common function
+            if "Elapsed seconds" in protectionJobs.data.columns:
+                protectionJobs.data["Elapsed seconds"] = pd.to_numeric(protectionJobs.data["Elapsed seconds"], errors='coerce').fillna(0).apply(fn.format_duration)
+                protectionJobs.data = protectionJobs.data.rename(columns={"Elapsed seconds": "Elapsed time"})
+
             protectionJobs = DCOreport.column_wordwrap(protectionJobs, columns=['Detailed description'])
             protectionJobs = protectionJobs.apply(color_jobsByStatus, axis=1)
             dcorpt.add_table("Protection", "PowerProtect Cyber Recovery", f"Instance {instance}", "Protection Jobs", protectionJobs, tableset="ts5")

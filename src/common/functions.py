@@ -442,7 +442,7 @@ def format_duration(seconds):
     days = total_minutes // (24 * 60)
     hours = (total_minutes % (24 * 60)) // 60
     minutes = total_minutes % 60
-    return f"{days}d {hours}h {minutes}m"
+    return f"{days}d {hours:02d}h {minutes:02d}m"
 
 
 def get_most_critical(df, column, status_order, default):
