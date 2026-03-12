@@ -55,24 +55,26 @@ def create_DCI(dcocfg, dcorpt):
             policiesDetail = policiesDetail.hide(['elapsed_seconds'], axis=1)
             dcorpt.add_table("Protection", "PowerProtect Cyber Recovery", f"Instance {instance}", "Policies", policiesDetail, tableset="ts3")
 
-        systemJobs = DCOreport.csv_to_styleddf(system, instance, "systemJobs", dcocfg)
-        if not systemJobs.data.empty:
+        df_system = dcocfg.load_csv_to_dataframe(system, instance, "systemJobs")
+        if not df_system.empty:
             # Reformat 'Elapsed seconds' as requested using common function
-            if "Elapsed seconds" in systemJobs.data.columns:
-                systemJobs.data["Elapsed seconds"] = pd.to_numeric(systemJobs.data["Elapsed seconds"], errors='coerce').fillna(0).apply(fn.format_duration)
-                systemJobs.data = systemJobs.data.rename(columns={"Elapsed seconds": "Elapsed time"})
+            if "Elapsed seconds" in df_system.columns:
+                df_system["Elapsed seconds"] = pd.to_numeric(df_system["Elapsed seconds"], errors='coerce').fillna(0).apply(fn.format_duration)
+                df_system = df_system.rename(columns={"Elapsed seconds": "Elapsed time"})
             
+            systemJobs = DCOreport.table_base_styler(df_system)
             systemJobs = DCOreport.column_wordwrap(systemJobs, columns=['Detailed description'])
             systemJobs = systemJobs.apply(color_jobsByStatus, axis=1)
             dcorpt.add_table("Protection", "PowerProtect Cyber Recovery", f"Instance {instance}", "System Jobs", systemJobs, tableset="ts4")
 
-        protectionJobs = DCOreport.csv_to_styleddf(system, instance, "protectionJobs", dcocfg)
-        if not protectionJobs.data.empty:
+        df_protection = dcocfg.load_csv_to_dataframe(system, instance, "protectionJobs")
+        if not df_protection.empty:
             # Reformat 'Elapsed seconds' as requested using common function
-            if "Elapsed seconds" in protectionJobs.data.columns:
-                protectionJobs.data["Elapsed seconds"] = pd.to_numeric(protectionJobs.data["Elapsed seconds"], errors='coerce').fillna(0).apply(fn.format_duration)
-                protectionJobs.data = protectionJobs.data.rename(columns={"Elapsed seconds": "Elapsed time"})
+            if "Elapsed seconds" in df_protection.columns:
+                df_protection["Elapsed seconds"] = pd.to_numeric(df_protection["Elapsed seconds"], errors='coerce').fillna(0).apply(fn.format_duration)
+                df_protection = df_protection.rename(columns={"Elapsed seconds": "Elapsed time"})
 
+            protectionJobs = DCOreport.table_base_styler(df_protection)
             protectionJobs = DCOreport.column_wordwrap(protectionJobs, columns=['Detailed description'])
             protectionJobs = protectionJobs.apply(color_jobsByStatus, axis=1)
             dcorpt.add_table("Protection", "PowerProtect Cyber Recovery", f"Instance {instance}", "Protection Jobs", protectionJobs, tableset="ts5")
