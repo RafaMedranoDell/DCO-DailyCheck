@@ -28,7 +28,7 @@ colorAlertBySeverityRowDeta = functools.partial(
 
 
 def colorByPolicyDuration(row):
-    color = DCOreport.GREEN if row["elapsed_seconds"] < 3600*24 else DCOreport.PASTEL_RED
+    color = DCOreport.GREEN if row["elapsed_seconds"] < 3600*24 else DCOreport.PASTEL_YELLOW
     return [color] * len(row)
 
 def colorByCScapacity(val):
