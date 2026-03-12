@@ -6,7 +6,7 @@ from datetime import datetime
 import subprocess
 import shlex
 
-product_list =  ['DD', 'ECS', 'IDRAC', 'OS10', 'PPCR', 'PPDM']
+product_list =  ['DD', 'ECS', 'IDRAC', 'OS10', 'PPCR', 'PPDM', 'VC']
 
 deploy_file_list = [
     "src/DCO-DailyCheck.py",
