@@ -92,7 +92,19 @@ class DCOconfig:
                         instances[:] = [self._getInstanceData(sel_system, sel_instance)]
 
     def systems(self):
-        return self.config["systems"].keys()
+        """
+        Returns the system types present in the configuration.
+        The list is sorted by a predefined priority to ensure consistent reporting order.
+        """
+        SYSTEM_PRIORITY = ["PPCR", "PPDM", "DD", "ECS", "VC", "IDRAC", "OS10"]
+        
+        current_systems = list(self.config["systems"].keys())
+        
+        # Sort current systems based on the priority list. 
+        # Systems not in the list are placed at the end.
+        current_systems.sort(key=lambda x: SYSTEM_PRIORITY.index(x) if x in SYSTEM_PRIORITY else 999)
+        
+        return current_systems
 
     def instances(self, system):
         # Returns the instance names for a system type
