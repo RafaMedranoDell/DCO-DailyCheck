@@ -169,7 +169,7 @@ class PPCRapi():
 
         return response.json()
 
-def getinfo(dcocfg):
+def getinfo(dcocfg, **kwargs):
     """
     Main execution function for the PPDM monitoring script.
 

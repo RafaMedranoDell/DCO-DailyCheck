@@ -321,7 +321,7 @@ def dd_get_filesys(instance, api_port, access_token, cert_hash):
 
 
 
-def getinfo(dcocfg):
+def getinfo(dcocfg, **kwargs):
     """
     Main function to retrieve information from a Data Domain system using API calls.
     The function reads configuration data, authenticates with the system, and retrieves
