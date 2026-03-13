@@ -1,6 +1,7 @@
 import pandas as pd
 import common.functions as fn
 import logging
+import common.DCOreport as DCOreport
 
 # Global variable for the system type
 system = "VC"
@@ -54,12 +55,12 @@ def process_vc_instance(dcocfg, instance):
         # 1. Calculate % Used before unit conversion for precision
         ds_df["% Used"] = ((ds_df["capacity"] - ds_df["free_space"]) / ds_df["capacity"]) * 100
         
-        # 2. Determine aggregate Status
-        max_used = ds_df["% Used"].max()
-        if max_used > 90:
-            ds_status = "Critical"
-        elif max_used > 80:
-            ds_status = "Warning"
+        # 2. Determine aggregate Status using common rating function
+        ds_status = DCOreport.rate_num_value(
+            max_used, 
+            rate_intervals=[0, 85, 95, 101], 
+            rating=["OK", "Warning", "Critical"]
+        )
             
         # 3. Create detail for DCI report (Convert to TB)
         if "hosts" not in ds_df.columns:

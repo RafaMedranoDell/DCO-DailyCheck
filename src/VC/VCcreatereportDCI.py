@@ -1,25 +1,16 @@
+import functools
 import pandas as pd
 import common.DCOreport as DCOreport
 
 # Global variable for the system type
 system = "VC"
 
-def color_datastore_usage(val):
-    """
-    Colors datastore usage percentage:
-    - 0-80: Green
-    - 80-90: Yellow
-    - 90-100: Red
-    """
-    try:
-        usage = float(val)
-        if usage >= 90:
-            return DCOreport.PASTEL_RED
-        elif usage >= 80:
-            return DCOreport.PASTEL_YELLOW
-        return DCOreport.PASTEL_GREEN
-    except:
-        return ''
+color_datastore_usage = functools.partial(
+    DCOreport.rate_num_value,
+    rate_intervals=[0, 85, 95, 101],
+    rating=DCOreport.COLORS_GYR,
+    force_conversion=True
+)
 
 def color_vm_state(row):
     """
