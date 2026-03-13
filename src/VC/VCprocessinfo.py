@@ -54,6 +54,7 @@ def process_vc_instance(dcocfg, instance):
     if not ds_df.empty:
         # 1. Calculate % Used before unit conversion for precision
         ds_df["% Used"] = ((ds_df["capacity"] - ds_df["free_space"]) / ds_df["capacity"]) * 100
+        max_used = ds_df["% Used"].max()
         
         # 2. Determine aggregate Status using common rating function
         ds_status = DCOreport.rate_num_value(
