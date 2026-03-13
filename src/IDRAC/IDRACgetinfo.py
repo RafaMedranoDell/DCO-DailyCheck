@@ -100,7 +100,7 @@ class iDRACapi():
 
 # La función extract_memory ha sido eliminada
 
-def getinfo(dcocfg):
+def getinfo(dcocfg, **kwargs):
     logger.info(f'Getting info from {system} systems')
 
     # Process each instance in the system

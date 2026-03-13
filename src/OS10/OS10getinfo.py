@@ -116,7 +116,7 @@ class OS10api():
         response_json = response.json()
         return response_json
 
-def getinfo(dcocfg):
+def getinfo(dcocfg, **kwargs):
     logger.info(f'Getting info from {system} systems')
 
     # Iterate through each system defined in the configuration

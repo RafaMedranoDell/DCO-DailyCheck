@@ -1,28 +1,42 @@
-# MISSION: Fix getinfo Argument Error
+# MISSION: Comprehensive Fix for getinfo Argument Errors
 
-The objective was to fix a crash when running the `getinfo` phase, caused by `DCO-DailyCheck.py` passing an unexpected `hours_ago` parameter to the `getinfo` functions of certain modules.
+The objective was to fix "TypeError" crashes during the `getinfo` phase across all system modules. These crashes occurred because the core script `DCO-DailyCheck.py` passes extra parameters (like `hours_ago`) that some modules were not prepared to receive.
 
 ## Analysis
-The main script `DCO-DailyCheck.py` passes `hours_ago` to all system `getinfo` calls. While the vCenter (`VC`) module was already updated to handle extra arguments, the `PPCR` and `DD` modules were not, leading to a `TypeError: getinfo() got an unexpected keyword argument 'hours_ago'`.
+The core script uses a dynamic phase execution pattern:
+```python
+process_phase(dcocfg, "getinfo", hours_ago=args.last)
+```
+While some modules (e.g., vCenter) used `**kwargs` to handle variable arguments, others explicitly defined only one argument (`dcocfg`), leading to crashes when others were passed.
 
 ## Changes Implemented
 
-### 1. PPCR Module (`src/PPCR/PPCRgetinfo.py`)
-Updated the function signature to accept `**kwargs`. This makes the function robust against extra arguments and allows the use of `hours_ago` inside the logic if needed in the future.
+### 1. Unified function signatures
+Modified all `getinfo` functions to use the `(dcocfg, **kwargs)` pattern. This ensures that any parameters passed from the command line (like `--last`) can be safely received or ignored.
+
+**Modules Updated:**
+- **PPCR** (`src/PPCR/PPCRgetinfo.py`)
+- **Data Domain** (`src/DD/DDgetinfo.py`)
+- **vCenter** (`src/VC/VCgetinfo.py`) - *Already compatible, kept as reference*
+- **PPDM** (`src/PPDM/PPDMgetinfo.py`)
+- **OS10** (`src/OS10/OS10getinfo.py`)
+- **iDRAC** (`src/IDRAC/IDRACgetinfo.py`)
+- **ECS** (`src/ECS/ECSgetinfo.py`)
+- **TEMPLATE** (`src/TEMPLATEgetinfo.py`)
+
+### 2. Parameter Usage
+For modules that actually use the lookback period (like PPDM and PPCR), the variable is now retrieved safely from the keyword arguments:
 ```python
 def getinfo(dcocfg, **kwargs):
-    # Example usage:
-    # hours = kwargs.get('hours_ago', 24)
+    hours_ago = kwargs.get('hours_ago', 24)
+    # ... use hours_ago ...
 ```
 
-### 2. DD Module (`src/DD/DDgetinfo.py`)
-Updated the function signature to accept `**kwargs` for consistency and to prevent future crashes in Data Domain systems.
-```python
-def getinfo(dcocfg, **kwargs):
-```
+### 3. Syntax Cleanup
+Fixed a syntax error in the source template (`TEMPLATEgetinfo.py`) to ensure the codebase remains lint-free.
 
 ## Branch
-`fix/ppcr-getinfo-argument-error`
+`fix/comprehensive-getinfo-argument-error`
 
 ## Result
-The script now runs the `getinfo` phase for PPCR and DD systems without crashing. The modules are now "future-proofed" as they will safely ignore or utilize any new parameters passed by the core script.
+The tool is now fully robust. Any module can be executed from the main script with parameters like `--last` without risk of crashing.

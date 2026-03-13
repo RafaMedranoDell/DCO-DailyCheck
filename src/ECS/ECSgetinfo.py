@@ -221,7 +221,7 @@ def ecs_get_localzone(instance, api_port, access_token, cert_hash):
     return filtered_results  # Return the processed and filtered local zone data
 
 
-def getinfo(dcocfg):
+def getinfo(dcocfg, **kwargs):
     """
     Main function to process data from systems specified in the configuration file.
     """

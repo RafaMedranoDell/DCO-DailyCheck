@@ -318,7 +318,7 @@ def get_storage_systems(instance, api_port, access_token, cert_file):
 
 
 
-def getinfo(dcocfg, hours_ago=24):
+def getinfo(dcocfg, **kwargs):
     """
     Main execution function for the PPDM monitoring script.
 
@@ -330,6 +330,7 @@ def getinfo(dcocfg, hours_ago=24):
 
     The collected data is saved to JSON files in the configured output directory.
     """
+    hours_ago = kwargs.get('hours_ago', 24)
 
     # Process each instance in the system
     logger.info(f'Getting info from {system} systems')

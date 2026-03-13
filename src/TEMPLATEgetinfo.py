@@ -86,10 +86,11 @@ class PRODUCTapi():
         return fn.filter_entries(response_data_json.get('items', []), fields)
 
 
-def getinfo(dcocfg, hours_ago=24):
+def getinfo(dcocfg, **kwargs):
     """
 
     """
+    hours_ago = kwargs.get('hours_ago', 24)
     logger.info(f'Getting info from {system} systems')
 
     # Process each instance in the system
@@ -120,7 +121,7 @@ def getinfo(dcocfg, hours_ago=24):
                 "field3"
             ]
             # Filter fields and data by date
-            data = fn.filter_entries(data.get('items', []), []), fields).... # Check this function
+            data = fn.filter_entries(data.get('items', []), fields)
             dcocfg.save_json(data, system, instance, "data1")
 
 if __name__ == "__main__":
