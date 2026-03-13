@@ -9,6 +9,21 @@ import common.DCOreport as DCOreport
 from getpass import getpass
 import common.functions as fn
 
+# Script version and changelog
+__version__ = "1.06"
+
+CHANGELOG = [
+    ("1.0",  "SCRIPT",  "Initial baseline version"),
+    ("1.01", "PPCR",    "Improved job duration display to human-readable format (e.g. 1d 02h 30m)"),
+    ("",     "PPCR",    "Fixed a report generation error in the Protection Jobs table"),
+    ("1.02", "PPCR",    "Updated Policies table color coding based on last backup date"),
+    ("1.03", "GETINFO", "Improved compatibility when passing parameters to collection modules"),
+    ("1.04", "REPORTS", "Fixed display order of systems (Protection -> Storage -> Compute -> Network)"),
+    ("1.05", "VC",      "Updated datastore capacity thresholds (Green<85%, Yellow 85-95%, Red>=95%)"),
+    ("1.06", "SCRIPT",  "Added --version and --changelog arguments"),
+    ("",     "DOCS", "Renamed and reorganized historical artifacts to match version numbers"),
+]
+
 # Get the logger for this module
 logger = logging.getLogger(__name__)
 
@@ -54,6 +69,10 @@ def create_parser():
        choices=['error', 'warn', 'info', 'debug'],
        default='INFO',
        help='Set the logging level.')
+    parser.add_argument('--version', action='store_true',
+        help='Show the current script version and exit.')
+    parser.add_argument('--changelog', action='store_true',
+        help='Show a table of all changes per version and exit.')
     return parser
 
 def process_phase(dcocfg, phase, **kwargs):
@@ -122,6 +141,16 @@ def send_report(dcocfg, dcorpt, current_time, rpt_name):
 if __name__ == "__main__":
     parser = create_parser()
     args = parser.parse_args()
+
+    if args.version:
+        print(f"DCO-DailyCheck v{__version__}")
+        sys.exit()
+    if args.changelog:
+        print(f"{'Version':<10} {'Module':<10} {'Change'}")
+        print("-" * 90)
+        for version, module, change in CHANGELOG:
+            print(f"{version:<10} {module:<10} {change}")
+        sys.exit()
 
     current_time = datetime.now()
     # Generate date/time format to be used in file names
