@@ -10,3 +10,4 @@ __pycache__
 !TEMPLATEconfig.json
 config_encrypted.json.*
 commit.txt
+.windsurf/
