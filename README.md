@@ -47,18 +47,30 @@ These are the steps to follow to obtain a reduced version of WinPython, but with
 
    > **Note:** if you need to reproduce the validated environment (WinPython with the tested packages), run `pip install -r requirements-verified.txt` from the repo root. This file pins the verified versions (Python 3.12.10 + main dependencies) and is the one used when packaging the scripts.
 
-6. Confirm that the modules have been instaled:
-    ```
-    wppm -ls
-    ```
-7. Check that the python is able to load the downloaded modules(optional)
+6. Verify the currently installed packages (optional control check):
+   ```
+   python.exe -m pip list --path "<WINPYTHON-PATH>\python\Lib\site-packages"
+   ```
+7. Disable the user site packages before installing:
+   ```
+   set PYTHONNOUSERSITE=1
+   ```
+8. Install the dependencies directly into the WinPython bundle site-packages:
+   ```
+   python.exe -m pip install -r requirements-verified.txt --target "<WINPYTHON-PATH>\python\Lib\site-packages"
+   ```
+9. Verify again that the modules are present inside the portable environment:
+   ```
+   python.exe -m pip list --path "<WINPYTHON-PATH>\python\Lib\site-packages"
+   ```
+10. Check that the python is able to load the downloaded modules(optional)
     - Execute python.exe
-    - Type import commands for each of the modules and verify it doesn't fail.
-    ```
+    - Type import commands for each of the modules and verify it doesn't fail
+   ```
    import <module_name>
-    ```
-8. Pack/zip the original folder (now with the modules installed).
-9. Copy and unzip the file to the customer server.
+   ```
+11. Pack/zip the original folder (now with the modules installed).
+12. Copy and unzip the file to the customer server.
 
 ### DCO scripts
 1. Generate the zip file with the scripts to deploy them in the customer server
