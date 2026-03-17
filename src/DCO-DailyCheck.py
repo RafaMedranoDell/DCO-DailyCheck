@@ -10,7 +10,7 @@ from getpass import getpass
 import common.functions as fn
 
 # Script version and changelog
-__version__ = "1.07"
+__version__ = "1.08"
 
 CHANGELOG = [
     ("1.0",  "SCRIPT",  "Initial baseline version"),
@@ -23,6 +23,7 @@ CHANGELOG = [
     ("1.06", "SCRIPT",  "Added --version and --changelog arguments"),
     ("",     "DOCS", "Renamed and reorganized historical artifacts to match version numbers"),
     ("1.07", "VC",      "Fixed datastore status aggregation (define max_used before rating)"),
+    ("1.08", "DOCS",    "Document WinPython dependencies and add requirements-verified list"),
 ]
 
 # Get the logger for this module

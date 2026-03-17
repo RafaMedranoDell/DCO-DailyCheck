@@ -42,7 +42,10 @@ These are the steps to follow to obtain a reduced version of WinPython, but with
     pip install requests
     pip install urllib3
     pip install jinja2
+    pip install pyvmomi
     ```
+
+   > **Note:** if you need to reproduce the validated environment (WinPython with the tested packages), run `pip install -r requirements-verified.txt` from the repo root. This file pins the verified versions (Python 3.12.10 + main dependencies) and is the one used when packaging the scripts.
 
 6. Confirm that the modules have been instaled:
     ```
