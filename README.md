@@ -299,6 +299,22 @@ Path Conversion Options:
   --paths {win,posix}  Convert paths to specified type
 ```
 
+## Known Issues & Troubleshooting
+
+### General
+- **Certificate Mismatches after Upgrades**: 
+  When a system (DD, PPDM, PPCR, etc.) is upgraded, its SSL certificate or fingerprint may change. This causes the `getinfo` phase to fail with a "certificate hash does not match" error.
+  **Solution**: Standard practice is to check and update the stored fingerprints using the configuration tool:
+  ```bash
+  python config_tool.py --certs check
+  python config_tool.py --certs update
+  ```
+
+### PowerProtect Cyber Recovery (PPCR)
+- **19.22+ Username Case Sensitivity**: 
+  Recent versions of PPCR (19.22 and newer) have stricter Identity Management (IAM). Usernames that worked in previous versions with mixed case (e.g., `DCOoper`) may now require strictly lowercase characters (`dcooper`) for API authentication.
+  **Solution**: The script now automatically converts usernames to lowercase for PPCR modules, but it's recommended to update the `config_encrypted.json` to use lowercase for consistency.
+
 ## Modules
 
 ## FAQs

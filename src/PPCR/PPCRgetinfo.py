@@ -23,7 +23,7 @@ API_ENDPOINTS = {
         'login': '/v7/login',
         'logout': '/v7/logout/{}'
     },
-    'v9': { # Endpoints for 19.21+
+    'v9': { # Endpoints for 19.21 and 19.22
         'login': '/v9/auth/login',
         'logout': '/v9/auth/logout'
     }
@@ -35,7 +35,8 @@ class PPCRapi():
         self.base_url = f'https://{instance}:{api_port}/cr'
         self._connected = False
         self.api_ver = None
-        self.username = username
+        # Force username to lowercase to handle PPCR 19.22+ case sensitivity
+        self.username = username.lower()
 
         self.session = requests.Session()
         self.session.headers.update({'content-type': 'application/json'})
@@ -43,7 +44,7 @@ class PPCRapi():
         self.session.verify = False
 
         # Prepare the data for authentication (username and decrypted password)
-        auth_data = { "username": username, "password": password }
+        auth_data = { "username": self.username, "password": password }
 
         try:
             for api_ver in API_ENDPOINTS:
@@ -63,6 +64,8 @@ class PPCRapi():
                     self.api_ver = api_ver
                     self._connected = True
                     break
+                elif response.status_code == requests.codes.unauthorized:
+                    self.log(logging.ERROR, f'Error 401: Authentication failed for user "{username}". Check credentials or if the account is locked (Error: {response.text})')
                 else:
                     self.log(logging.ERROR, f'{response.status_code}:{response.text}')
         except requests.exceptions.ConnectionError as e:

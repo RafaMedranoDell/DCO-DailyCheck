@@ -11,3 +11,4 @@ __pycache__
 config_encrypted.json.*
 commit.txt
 .windsurf/
+.agents/

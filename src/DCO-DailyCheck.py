@@ -10,7 +10,7 @@ from getpass import getpass
 import common.functions as fn
 
 # Script version and changelog
-__version__ = "1.09"
+__version__ = "1.10.0"
 
 CHANGELOG = [
     ("1.0",  "SCRIPT",  "Initial baseline version"),
@@ -25,6 +25,9 @@ CHANGELOG = [
     ("1.07", "VC",      "Fixed datastore status aggregation (define max_used before rating)"),
     ("1.08", "DOCS",    "Document WinPython dependencies and add requirements-verified list"),
     ("1.09", "DOCS",    "Clarify WinPython portable installation workflow"),
+    ("1.10.0", "PPCR",  "Improved compatibility with PPCR 19.22 (v9 auth) and error reporting"),
+    ("",       "PPCR",  "Implemented automatic username normalization (lowercase) for IAM"),
+    ("",       "DOCS",  "Updated README.md with troubleshooting for upgrades and certs"),
 ]
 
 # Get the logger for this module
