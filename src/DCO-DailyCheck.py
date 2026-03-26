@@ -30,6 +30,7 @@ CHANGELOG = [
     ("",       "DOCS",  "Updated README.md with troubleshooting for upgrades and certs"),
     ("1.11.0", "VC",    "Expanded triggered alarms collection to include Folder-based objects (e.g. license alarms)"),
     ("",       "VC",    "Added acknowledged details (time and user) to DCI report alarms table"),
+    ("",       "VC",    "New detailed Host Connectivity table in DCI for disconnected or powered-off hosts"),
 ]
 
 # Get the logger for this module
