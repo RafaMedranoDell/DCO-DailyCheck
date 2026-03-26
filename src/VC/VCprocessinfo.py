@@ -36,6 +36,11 @@ def process_vc_instance(dcocfg, instance):
     # --- B. Hosts Status ---
     hosts_df = pd.DataFrame(hosts)
     if not hosts_df.empty:
+        # 0. Ensure required columns exist
+        for col in ["name", "connection_state", "power_state"]:
+            if col not in hosts_df.columns:
+                hosts_df[col] = "UNKNOWN"
+                
         # 1. Critical: Any host NOT connected
         if (hosts_df["connection_state"] != "CONNECTED").any():
             hosts_status = "Critical"
@@ -45,8 +50,15 @@ def process_vc_instance(dcocfg, instance):
         # 3. OK: All connected and powered on
         else:
             hosts_status = "OK"
+            
+        # 2. Save detail for DCI report (Wait! I'll include all fields for better report options)
+        hosts_detail = hosts_df[["name", "connection_state", "power_state"]].copy()
+        dcocfg.save_dataframe_to_csv(hosts_detail, system, instance, "hostStatus")
     else:
         hosts_status = "Critical"
+        # Save empty CSV with headers if needed
+        empty_hosts = pd.DataFrame(columns=["name", "connection_state", "power_state"])
+        dcocfg.save_dataframe_to_csv(empty_hosts, system, instance, "hostStatus")
 
     # --- C. Datastores Status & Detail ---
     ds_df = pd.DataFrame(datastores)
@@ -119,8 +131,9 @@ def process_vc_instance(dcocfg, instance):
         # 2. Create detail for DCI report (All alarms)
         # Select and reorder columns as requested
         detail_cols = [
-            "triggered_time", "overall_status", "acknowledged", "alarm_enabled",
-            "entity_type", "entity_name", "alarm_key", "alarm_name", "alarm_description"
+            "triggered_time", "overall_status", "acknowledged", "alarm_enabled", 
+            "acknowledged_time", "acknowledged_by", "entity_type", "entity_name", 
+            "alarm_name", "alarm_description"
         ]
         # Ensure all columns exist (fill with None if missing)
         for col in detail_cols:
@@ -133,7 +146,8 @@ def process_vc_instance(dcocfg, instance):
         # If no alarms at all, create empty detail file with headers
         empty_df = pd.DataFrame(columns=[
             "triggered_time", "overall_status", "acknowledged", "alarm_enabled",
-            "entity_type", "entity_name", "alarm_key", "alarm_name", "alarm_description"
+            "acknowledged_time", "acknowledged_by", "entity_type", "entity_name",
+            "alarm_name", "alarm_description"
         ])
         dcocfg.save_dataframe_to_csv(empty_df, system, instance, "alertsDetail")
 

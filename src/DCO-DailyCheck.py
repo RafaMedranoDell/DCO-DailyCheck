@@ -10,7 +10,7 @@ from getpass import getpass
 import common.functions as fn
 
 # Script version and changelog
-__version__ = "1.10.0"
+__version__ = "1.11.0"
 
 CHANGELOG = [
     ("1.0",  "SCRIPT",  "Initial baseline version"),
@@ -28,6 +28,8 @@ CHANGELOG = [
     ("1.10.0", "PPCR",  "Improved compatibility with PPCR 19.22 (v9 auth) and error reporting"),
     ("",       "PPCR",  "Implemented automatic username normalization (lowercase) for IAM"),
     ("",       "DOCS",  "Updated README.md with troubleshooting for upgrades and certs"),
+    ("1.11.0", "VC",    "Expanded triggered alarms collection to include Folder-based objects (e.g. license alarms)"),
+    ("",       "VC",    "Added acknowledged details (time and user) to DCI report alarms table"),
 ]
 
 # Get the logger for this module

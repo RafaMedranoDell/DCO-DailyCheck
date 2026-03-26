@@ -94,17 +94,27 @@ def fetch_soap_alarms(host, username, password):
         # We are only interested in the actual source of the alarm.
         container = content.viewManager.CreateContainerView(
             content.rootFolder, 
-            [vim.HostSystem, vim.VirtualMachine, vim.Datastore, vim.ClusterComputeResource, vim.Network], 
+            [vim.ManagedEntity], 
             True  # Recursive
         )
         
-        # Iterate through all entities and collect their triggered alarms
-        for entity in container.view:
+        # Iterate through all entities plus the root folder itself
+        # (the root folder might not be in the view if it's the container)
+        entities_to_check = list(container.view)
+        if content.rootFolder not in entities_to_check:
+            entities_to_check.append(content.rootFolder)
+            
+        for entity in entities_to_check:
             try:
                 triggered_alarms = entity.triggeredAlarmState
                 
                 for alarm_state in triggered_alarms:
                     try:
+                        # Skip propagated alarms to avoid duplicates.
+                        # We only capture the alarm on the object where it was actually triggered.
+                        if alarm_state.entity != entity:
+                            continue
+                            
                         # Extract entity information
                         entity_type = type(entity).__name__
                         entity_name = getattr(entity, 'name', None)

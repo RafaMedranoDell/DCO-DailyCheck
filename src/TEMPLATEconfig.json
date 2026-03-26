@@ -225,6 +225,7 @@
                     "systemSummary": "system_summary.csv",
                     "datastoreStatus": "datastore_status.csv",
                     "vmStatus": "vm_status.csv",
+                    "hostStatus": "host_status.csv",
                     "alertsDetail": "alerts_detail.csv"
                 }
             },

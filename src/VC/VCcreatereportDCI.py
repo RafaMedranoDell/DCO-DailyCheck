@@ -44,7 +44,19 @@ def create_DCI(dcocfg, dcorpt):
             
             dcorpt.add_table("Compute", "vSphere", instance, "Datastore Capacity Detail", ds_detail, tableset="Overview")
 
-        # --- 2. VM Status Table ---
+        # --- 2. Host Connectivity Table ---
+        df_hosts = dcocfg.load_csv_to_dataframe(system, instance, "hostStatus")
+        if not df_hosts.empty:
+            # Filter: Show hosts that are NOT CONNECTED or NOT POWERED_ON
+            bad_hosts = df_hosts[(df_hosts["connection_state"] != "CONNECTED") | (df_hosts["power_state"] != "POWERED_ON")]
+            
+            if not bad_hosts.empty:
+                # Simple styling: make them all red as they are in alert state
+                host_detail = DCOreport.table_base_styler(bad_hosts)
+                host_detail = host_detail.apply(lambda row: [DCOreport.PASTEL_RED] * len(row), axis=1)
+                dcorpt.add_table("Compute", "vSphere", instance, "Host Connectivity Detail", host_detail, tableset="Overview")
+        
+        # --- 3. VM Status Table ---
         # Load raw dataframe first to filter
         df_vms = dcocfg.load_csv_to_dataframe(system, instance, "vmStatus")
         if not df_vms.empty:
@@ -63,7 +75,7 @@ def create_DCI(dcocfg, dcorpt):
                 
                 dcorpt.add_table("Compute", "vSphere", instance, "VM Power Status Detail", vm_detail, tableset="Overview")
             
-        # --- 3. Alerts Detail Table ---
+        # --- 4. Alerts Detail Table ---
         # This will contain trigged alarms from the last scan
         try:
             alerts_detail = DCOreport.csv_to_styleddf(system, instance, "alertsDetail", dcocfg)
