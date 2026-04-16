@@ -195,8 +195,14 @@ def dd_get_replicas(instance, api_port, access_token, cert_hash):
         "X-DD-AUTH-TOKEN": access_token  # Include the authentication token in the request headers
     }
 
+    # Define parameters to increase the result limit (Data Domain default is typically 20)
+    params = {
+        'size': '100',
+        'page': '0'
+    }
+
     # Send a GET request to fetch replication data
-    response_data = requests.get(url, headers=headers, verify=False)
+    response_data = requests.get(url, headers=headers, params=params, verify=False)
 
     # Check if the request was successful
     if response_data.status_code != requests.codes.ok:
