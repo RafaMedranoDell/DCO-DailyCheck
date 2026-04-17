@@ -240,6 +240,32 @@
             "cfg": {
                 "api_port": 443
             }
+        },
+        "ESX": {
+            "cfg": {
+                "api_port": 443
+            },
+            "files": {
+                "json": {
+                    "host_health": "host_health.json",
+                    "datastores":  "datastores.json",
+                    "vms":         "vms.json",
+                    "alarms":      "alarms.json"
+                },
+                "csv": {
+                    "systemSummary":    "system_summary.csv",
+                    "datastoreStatus":  "datastore_status.csv",
+                    "vmStatus":         "vm_status.csv",
+                    "alertsDetail":     "alerts_detail.csv"
+                }
+            },
+            "instances": [
+                {
+                    "hostname": "",
+                    "username": "",
+                    "encrypted_password": ""
+                }
+            ]
         }
     }
 }
