@@ -26,8 +26,8 @@ def create_DC(dcocfg, dcorpt):
         for instance in summaryDfsty.data.columns:
             summaryDfsty = summaryDfsty.map(color_alertsBySeverityVal, subset=[instance])
 
-        # Add table to the report
-        dcorpt.add_table("Compute", "Servers", "", "", summaryDfsty)
+        # Add table to the report under 'Compute' section
+        dcorpt.add_table("Compute", "IDRAC Servers", "", "", summaryDfsty)
 
 if __name__ == "__main__":
     # Load configuration and create a report

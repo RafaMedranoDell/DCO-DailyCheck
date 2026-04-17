@@ -10,7 +10,7 @@ from getpass import getpass
 import common.functions as fn
 
 # Script version and changelog
-__version__ = "1.13.0"
+__version__ = "1.14.0"
 
 CHANGELOG = [
     ("1.0",  "SCRIPT",  "Initial baseline version"),
@@ -33,6 +33,9 @@ CHANGELOG = [
     ("",       "VC",    "New detailed Host Connectivity table in DCI for disconnected or powered-off hosts"),
     ("1.12.0", "DD",    "Increased replica collection limit from 20 to 100 to prevent data truncation"),
     ("1.13.0", "ESX",   "New ESX standalone module to monitor ESXi hosts without vCenter (SOAP/pyVmomi)"),
+    ("1.14.0", "IDRAC", "Simplified iDRAC reports: consolidated 3-row DC summary and filtered DCI detail"),
+    ("",       "IDRAC", "Added additional filter for LifeCycle Controller Log in DCI to show only non-OK entries"),
+    ("",       "IDRAC", "Implemented row-level color coding for all logs (Critical=Red, Warning=Yellow) in DCI"),
 ]
 
 # Get the logger for this module

@@ -79,6 +79,8 @@ def process_logs(data, system, instance, dcocfg):
         "Severity": "Severity"
     }
 
+    logs_status = "OK"
+
     # Process the log types and identify them
     for log in data["Members"]:
         log_id = log["Id"]
@@ -89,23 +91,30 @@ def process_logs(data, system, instance, dcocfg):
         df = fn.filter_by_time(df, "Created", "%Y-%m-%dT%H:%M:%S%z", dcocfg.get_param("start_time"))
 
         if log_id == "Sel":
-            # Sel: SEL (System Event Log) Log Service
-            df = df.reindex(columns=common_columns.keys()).rename(columns=common_columns)
-            dcocfg.save_dataframe_to_csv(df, system, instance, "log_sel")
+            df_out = df.reindex(columns=common_columns.keys()).rename(columns=common_columns)
+            dcocfg.save_dataframe_to_csv(df_out, system, instance, "log_sel")
         elif log_id == "Lclog":
-            # Lclog: LifeCycle Controller Log Service
-            selected_columns = common_columns
+            selected_columns = dict(common_columns)
             selected_columns.update({"Oem.Dell.Category": "Category"})
-            df = df.reindex(columns=selected_columns.keys()).rename(columns=selected_columns)
-            dcocfg.save_dataframe_to_csv(df, system, instance, "log_lc")
+            df_out = df.reindex(columns=selected_columns.keys()).rename(columns=selected_columns)
+            dcocfg.save_dataframe_to_csv(df_out, system, instance, "log_lc")
         elif log_id == "FaultList":
-            # FaultList: FaultListEntries
-            df = df.reindex(columns=common_columns.keys()).rename(columns=common_columns)
-            dcocfg.save_dataframe_to_csv(df, system, instance, "log_faults")
+            df_out = df.reindex(columns=common_columns.keys()).rename(columns=common_columns)
+            dcocfg.save_dataframe_to_csv(df_out, system, instance, "log_faults")
         else:
-            logger.warn(f'Unknown log type found: {log_id}/{log_name}')
+            logger.warning(f'Unknown log type found: {log_id}/{log_name}')
+            continue
 
-    return "n/a"
+        # Aggregate log status from Severity column
+        if "Severity" in df.columns:
+            severities = set(df["Severity"].dropna().unique())
+            if "Critical" in severities:
+                logs_status = "Critical"
+            elif "Warning" in severities and logs_status != "Critical":
+                logs_status = "Warning"
+
+    return logs_status
+
 
 def process_powersupplies(data, system, instance, dcocfg):
     # Load data into a dataframe
@@ -186,13 +195,12 @@ def process_thermal(data, system, instance, dcocfg):
 
     return fn.get_most_critical(df, "Health", ["Critical", "Warning", "Unknown", "OK"], "n/a")
 
-def proccess_info(dcocfg):
+def proccess_info(dcocfg, **kwargs):
     """
-    Main function that coordinates all tasks by loading the configuration
-    and processing the necessary data for each system and instance.
-
-    This function processes system health, job group activities, activities that
-    were not OK, and storage systems based on the configuration file and JSON data.
+    Main function that coordinates all tasks. Generates a 3-row summary:
+    - System Health: worst of Chassis, System, Processors, PSU, Fans, Temperatures
+    - Storage Health: storage controller health
+    - Logs Status: derived from Severity of log entries in the period
     """
 
     # Process each instance in the system
@@ -200,26 +208,28 @@ def proccess_info(dcocfg):
     for instance in dcocfg.instances(system):
         logger.info(f'Processing info from: "{instance}"')
 
-        # Process data1
-        chassis_status = fn.process_if_not_empty(process_chassis, system, instance, "chassis", dcocfg)
-        system_status = fn.process_if_not_empty(process_system, system, instance, "system", dcocfg)
-        processors_status = fn.process_if_not_empty(process_processors, system, instance, "processors", dcocfg)
-        powersupplies_status = fn.process_if_not_empty(process_powersupplies, system, instance, "power", dcocfg)
-        fans_status = fn.process_if_not_empty(process_fans, system, instance, "thermal", dcocfg)
-        storage_status = fn.process_if_not_empty(process_storage, system, instance, "storage", dcocfg)
-        thermal_status = fn.process_if_not_empty(process_thermal, system, instance, "thermal", dcocfg)
-        logs_status = fn.process_if_not_empty(process_logs, system, instance, "logs", dcocfg)
+        # --- Individual component statuses ---
+        chassis_status       = fn.process_if_not_empty(process_chassis,       system, instance, "chassis",    dcocfg)
+        system_status        = fn.process_if_not_empty(process_system,         system, instance, "system",     dcocfg)
+        processors_status    = fn.process_if_not_empty(process_processors,     system, instance, "processors", dcocfg)
+        powersupplies_status = fn.process_if_not_empty(process_powersupplies,  system, instance, "power",      dcocfg)
+        fans_status          = fn.process_if_not_empty(process_fans,           system, instance, "thermal",    dcocfg)
+        storage_status       = fn.process_if_not_empty(process_storage,        system, instance, "storage",    dcocfg)
+        thermal_status       = fn.process_if_not_empty(process_thermal,        system, instance, "thermal",    dcocfg)
+        logs_status          = fn.process_if_not_empty(process_logs,           system, instance, "logs",       dcocfg)
 
-        # Generate a CSV with the instance summary
-        instance_summary =[
-            ["Chassis", chassis_status],
-            ["System", system_status],
-            ["Processors", processors_status],
-            ["Power Supplies", powersupplies_status],
-            ["Fans", fans_status],
-            ["Storage", storage_status],
-            ["Temperatures", thermal_status],
-            ["Logs", logs_status]]
+        # --- Aggregate: System Health = worst of 6 hardware components (excluding storage) ---
+        priority = ["Critical", "Warning", "Unknown", "OK", "n/a"]
+        hw_statuses = [chassis_status, system_status, processors_status, 
+                       powersupplies_status, fans_status, thermal_status]
+        system_health = next((s for s in priority if s in hw_statuses), "n/a")
+
+        # --- Build 3-row summary ---
+        instance_summary = [
+            ["System Health",  system_health],
+            ["Storage Health", storage_status],
+            ["Logs Status",    logs_status],
+        ]
 
         dcocfg.save_dataframe_to_csv(
             pd.DataFrame(instance_summary, columns=["System Name", instance]),
