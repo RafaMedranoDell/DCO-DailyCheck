@@ -1,12 +1,13 @@
 import zipfile
 import hashlib
 import os
+import re
 from io import BytesIO
 from datetime import datetime
 import subprocess
 import shlex
 
-product_list =  ['DD', 'ECS', 'IDRAC', 'OS10', 'PPCR', 'PPDM', 'VC']
+product_list =  ['DD', 'ECS', 'ESX', 'IDRAC', 'OS10', 'PPCR', 'PPDM', 'VC']
 
 deploy_file_list = [
     "src/DCO-DailyCheck.py",
@@ -35,12 +36,22 @@ def compute_sha256(file_path):
             sha256.update(chunk)
     return sha256.hexdigest()
 
+# Extract version from main script
+version = "vUnknown"
+try:
+    with open('src/DCO-DailyCheck.py', 'r') as f:
+        content = f.read()
+        match = re.search(r'__version__\s*=\s*["\']([^"\']+)["\']', content)
+        if match:
+            version = f"v{match.group(1)}"
+except Exception as e:
+    print(f"Warning: Could not extract version: {e}")
+
+print(f"Creating deploy pack {version} with products: " + ", ".join(product_list))
 # Create a ZIP file
 current_time = datetime.now()
 timestr_fname = current_time.strftime("%Y%m%d_%H%M")
-zip_filename = f'build/deploypack-{timestr_fname}.zip'
-
-print("Creating deploy pack with products: {}".format(", ".join(product_list)))
+zip_filename = f'build/{version}_deploypack-{timestr_fname}.zip'
 with zipfile.ZipFile(zip_filename, 'w', zipfile.ZIP_DEFLATED) as zipf:
     # Dictionary to store file hashes
     file_hashes = {}
