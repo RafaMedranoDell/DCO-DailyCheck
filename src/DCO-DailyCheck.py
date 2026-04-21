@@ -10,7 +10,7 @@ from getpass import getpass
 import common.functions as fn
 
 # Script version and changelog
-__version__ = "1.14.0"
+__version__ = "1.14.1"
 
 CHANGELOG = [
     ("1.0",  "SCRIPT",  "Initial baseline version"),
@@ -36,6 +36,8 @@ CHANGELOG = [
     ("1.14.0", "IDRAC", "Simplified iDRAC reports: consolidated 3-row DC summary and filtered DCI detail"),
     ("",       "IDRAC", "Added additional filter for LifeCycle Controller Log in DCI to show only non-OK entries"),
     ("",       "IDRAC", "Implemented row-level color coding for all logs (Critical=Red, Warning=Yellow) in DCI"),
+    ("1.14.1", "DEPLOY",  "Fixed ESX module exclusion in deploy-pack.py script"),
+    ("",       "DEPLOY",  "Added version prefix to the deployment package filename"),
 ]
 
 # Get the logger for this module
