@@ -584,7 +584,7 @@ def df_reformat_dates(df: pd.DataFrame, columns: list, current_fmt: str) -> pd.D
 # CreatereportDC / DCI helpers
 ######################################################################################################
 
-def systemSummary(system, index_key, data_type, dcocfg):
+def systemSummary(system, index_key, data_type, dcocfg, use_aliases=True):
     """
     Generates a dataframe with the sumarized info of all the instances of a system type.
 
@@ -598,6 +598,8 @@ def systemSummary(system, index_key, data_type, dcocfg):
         First column (index) for the dataframe summaries of this system type.
     data_type : str
         Keyword describing the files that have the summary in the configuration.
+    use_aliases : bool
+        If True, use aliases in column headers, else use hostnames.
 
     Returns:
     --------
@@ -606,18 +608,29 @@ def systemSummary(system, index_key, data_type, dcocfg):
     """
     # Load and return Unified file: DD-unified_data.csv, ECS-unified_data.csv, PPDM-unified_data.csv
     if system in ("PPDM"):
-        return dcocfg.load_csv_to_dataframe(system, "", "unifiedData")
+        df = dcocfg.load_csv_to_dataframe(system, "", "unifiedData")
+        if use_aliases and not df.empty:
+            for instance in dcocfg.instances(system):
+                display_name = dcocfg.get_instance_display_name(system, instance)
+                if instance != display_name and instance in df.columns:
+                    df = df.rename(columns={instance: display_name})
+        return df
 
     summaryDf = pd.DataFrame()
     for instance in dcocfg.instances(system):
         df = dcocfg.load_csv_to_dataframe(system, instance, data_type)
-        if summaryDf.empty:
-            # First dataframe loaded: assign
-            summaryDf = df
-        else:
-            # Remaining dataframes: merge if not empty
-            if not df.empty:
-                summaryDf = summaryDf.merge(df, on=index_key, how='inner')
+        if not df.empty:
+            if use_aliases:
+                display_name = dcocfg.get_instance_display_name(system, instance)
+                if instance != display_name:
+                    df = df.rename(columns={instance: display_name})
+
+            if summaryDf.empty:
+                # First dataframe loaded: assign
+                summaryDf = df
             else:
-                logger.warn(f'Summary dataframe for {system}/{instance} is empty.')
+                # Remaining dataframes: merge if not empty
+                summaryDf = summaryDf.merge(df, on=index_key, how='inner')
+        else:
+            logger.warn(f'Summary dataframe for {system}/{instance} is empty.')
     return summaryDf

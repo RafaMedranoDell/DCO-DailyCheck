@@ -40,7 +40,8 @@ def create_DC(dcocfg, dcorpt):
             ])
             
             # 4. Add the table to the 'Compute' section under the title 'vSphere'
-            dcorpt.add_table("Compute", "vSphere", instance, "System Summary", summary_df)
+            display_name = dcocfg.get_instance_display_name(system, instance)
+            dcorpt.add_table("Compute", "vSphere", display_name, "System Summary", summary_df)
 
 
 if __name__ == "__main__":

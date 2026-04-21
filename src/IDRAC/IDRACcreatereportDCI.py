@@ -50,7 +50,8 @@ colorBySeverityRow = functools.partial(
 def create_DCI(dcocfg, dcorpt):
     logger.info(f'Generating DCI for {system} systems')
     for instance in dcocfg.instances(system):
-        logger.info(f'Generating DCI for "{instance}"')
+        full_name = dcocfg.get_instance_full_name(system, instance)
+        logger.info(f'Generating DCI for "{full_name}"')
 
         # --- 1. Chassis ---
         df_chassis = dcocfg.load_csv_to_dataframe(system, instance, "chassis")
@@ -66,7 +67,7 @@ def create_DCI(dcocfg, dcorpt):
                 chassis = DCOreport.apply_styler_map(chassis, colorByHealth, subset=["Health"])
                 chassis = DCOreport.apply_styler_map(chassis, colorByHealth, subset=["Health Rollup"])
                 chassis = DCOreport.apply_styler_map(chassis, colorByStatus, subset=["Status"])
-                dcorpt.add_table("Compute", "Server / iDRAC", f"Instance {instance}", "Chassis (Problems)", chassis, tableset="hardware1/col1")
+                dcorpt.add_table("Compute", "Server / iDRAC", full_name, "Chassis (Problems)", chassis, tableset="hardware1/col1")
 
         # --- 2. System ---
         df_sys = dcocfg.load_csv_to_dataframe(system, instance, "system")
@@ -82,7 +83,7 @@ def create_DCI(dcocfg, dcorpt):
                 system_hw = DCOreport.apply_styler_map(system_hw, colorByHealth, subset=["Health"])
                 system_hw = DCOreport.apply_styler_map(system_hw, colorByHealth, subset=["Health Rollup"])
                 system_hw = DCOreport.apply_styler_map(system_hw, colorByStatus, subset=["Status"])
-                dcorpt.add_table("Compute", "Server / iDRAC", f"Instance {instance}", "System (Problems)", system_hw, tableset="hardware1/col1")
+                dcorpt.add_table("Compute", "Server / iDRAC", full_name, "System (Problems)", system_hw, tableset="hardware1/col1")
 
         # --- 3. Processors ---
         df_proc = dcocfg.load_csv_to_dataframe(system, instance, "processors")
@@ -92,7 +93,7 @@ def create_DCI(dcocfg, dcorpt):
                 processors = DCOreport.table_base_styler(problems)
                 processors = DCOreport.apply_styler_map(processors, colorByHealth, subset=["Health"])
                 processors = DCOreport.apply_styler_map(processors, colorByStatus, subset=["Status"])
-                dcorpt.add_table("Compute", "Server / iDRAC", f"Instance {instance}", "Processors (Problems)", processors, tableset="hardware1/col1")
+                dcorpt.add_table("Compute", "Server / iDRAC", full_name, "Processors (Problems)", processors, tableset="hardware1/col1")
 
         # --- 4. Power Supplies ---
         df_psu = dcocfg.load_csv_to_dataframe(system, instance, "powersupplies")
@@ -102,7 +103,7 @@ def create_DCI(dcocfg, dcorpt):
                 powersupplies = DCOreport.table_base_styler(problems)
                 powersupplies = DCOreport.apply_styler_map(powersupplies, colorByHealth, subset=["Health"])
                 powersupplies = DCOreport.apply_styler_map(powersupplies, colorByStatus, subset=["Status"])
-                dcorpt.add_table("Compute", "Server / iDRAC", f"Instance {instance}", "Power Supplies (Problems)", powersupplies, tableset="hardware1/col1")
+                dcorpt.add_table("Compute", "Server / iDRAC", full_name, "Power Supplies (Problems)", powersupplies, tableset="hardware1/col1")
 
         # --- 5. Fans ---
         df_fans = dcocfg.load_csv_to_dataframe(system, instance, "fans")
@@ -112,7 +113,7 @@ def create_DCI(dcocfg, dcorpt):
                 fans = DCOreport.table_base_styler(problems)
                 fans = DCOreport.apply_styler_map(fans, colorByHealth, subset=["Health"])
                 fans = DCOreport.apply_styler_map(fans, colorByStatus, subset=["Status"])
-                dcorpt.add_table("Compute", "Server / iDRAC", f"Instance {instance}", "Fans (Problems)", fans, tableset="hardware1")
+                dcorpt.add_table("Compute", "Server / iDRAC", full_name, "Fans (Problems)", fans, tableset="hardware1")
 
         # --- 6. Storage ---
         df_storage = dcocfg.load_csv_to_dataframe(system, instance, "storage")
@@ -127,7 +128,7 @@ def create_DCI(dcocfg, dcorpt):
                 storage = DCOreport.apply_styler_map(storage, colorByHealth, subset=["Health"])
                 storage = DCOreport.apply_styler_map(storage, colorByHealth, subset=["Health Rollup"])
                 storage = DCOreport.apply_styler_map(storage, colorByStatus, subset=["Status"])
-                dcorpt.add_table("Compute", "Server / iDRAC", f"Instance {instance}", "Storage (Problems)", storage, tableset="hardware1/col1")
+                dcorpt.add_table("Compute", "Server / iDRAC", full_name, "Storage (Problems)", storage, tableset="hardware1/col1")
 
         # --- 7. Temperatures ---
         df_thermal = dcocfg.load_csv_to_dataframe(system, instance, "thermal")
@@ -138,14 +139,14 @@ def create_DCI(dcocfg, dcorpt):
                 thermal = DCOreport.apply_styler_map(thermal, colorByHealth, subset=["Health"])
                 thermal = DCOreport.apply_styler_map(thermal, colorByStatus, subset=["Status"])
                 thermal = DCOreport.apply_styler_map(thermal, colorTempRows, subset=["Temp Cº"])
-                dcorpt.add_table("Compute", "Server / iDRAC", f"Instance {instance}", "Temperatures (Problems)", thermal, tableset="hardware1")
+                dcorpt.add_table("Compute", "Server / iDRAC", full_name, "Temperatures (Problems)", thermal, tableset="hardware1")
 
         # --- 8. Event Logs ---
         log_sel_styled = DCOreport.csv_to_styleddf(system, instance, "log_sel", dcocfg)
         if not log_sel_styled.data.empty:
             log_sel_styled = log_sel_styled.apply(colorBySeverityRow, axis=1)
             log_sel_styled = DCOreport.column_wordwrap(log_sel_styled, "Message")
-            dcorpt.add_table("Compute", "Server / iDRAC", f"Instance {instance}", "System Event Log", log_sel_styled, tableset="log_sel")
+            dcorpt.add_table("Compute", "Server / iDRAC", full_name, "System Event Log", log_sel_styled, tableset="log_sel")
 
         log_lc_df = dcocfg.load_csv_to_dataframe(system, instance, "log_lc")
         if not log_lc_df.empty:
@@ -154,13 +155,13 @@ def create_DCI(dcocfg, dcorpt):
                 log_lc = DCOreport.table_base_styler(problems_lc)
                 log_lc = log_lc.apply(colorBySeverityRow, axis=1) 
                 log_lc = DCOreport.column_wordwrap(log_lc, "Message")
-                dcorpt.add_table("Compute", "Server / iDRAC", f"Instance {instance}", "LifeCycle Controller Log (Problems)", log_lc, tableset="log_lc")
+                dcorpt.add_table("Compute", "Server / iDRAC", full_name, "LifeCycle Controller Log (Problems)", log_lc, tableset="log_lc")
 
         log_faults_styled = DCOreport.csv_to_styleddf(system, instance, "log_faults", dcocfg)
         if not log_faults_styled.data.empty:
             log_faults_styled = log_faults_styled.apply(colorBySeverityRow, axis=1)
             log_faults_styled = DCOreport.column_wordwrap(log_faults_styled, "Message")
-            dcorpt.add_table("Compute", "Server / iDRAC", f"Instance {instance}", "FaultList Entries", log_faults_styled, tableset="log_faults")
+            dcorpt.add_table("Compute", "Server / iDRAC", full_name, "FaultList Entries", log_faults_styled, tableset="log_faults")
 
 if __name__ == "__main__":
     # Load configuration and create a report

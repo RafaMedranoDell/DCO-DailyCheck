@@ -26,6 +26,7 @@ def create_DCI(dcocfg, dcorpt):
     Entry point to add detailed ESX standalone tables to the DCI report.
     """
     for instance in dcocfg.instances(system):
+        full_name = dcocfg.get_instance_full_name(system, instance)
 
         # --- 1. Datastore Capacity Detail ---
         ds_detail = DCOreport.csv_to_styleddf(system, instance, "datastoreStatus", dcocfg)
@@ -36,7 +37,7 @@ def create_DCI(dcocfg, dcorpt):
                 "Free (TB)":  "{:.2f}",
                 "% Used":     "{:.1f}%"
             })
-            dcorpt.add_table("Compute", "ESX", instance, "Datastore Capacity Detail", ds_detail, tableset="Overview")
+            dcorpt.add_table("Compute", "ESX", full_name, "Datastore Capacity Detail", ds_detail, tableset="Overview")
 
         # --- 2. VM Power Status Detail ---
         df_vms = dcocfg.load_csv_to_dataframe(system, instance, "vmStatus")
@@ -49,7 +50,7 @@ def create_DCI(dcocfg, dcorpt):
                 vm_detail = DCOreport.table_base_styler(df_off_vms)
                 vm_detail = vm_detail.apply(color_vm_state, axis=1)
                 vm_detail = DCOreport.column_wordwrap(vm_detail, ["name"])
-                dcorpt.add_table("Compute", "ESX", instance, "VM Power Status Detail", vm_detail, tableset="Overview")
+                dcorpt.add_table("Compute", "ESX", full_name, "VM Power Status Detail", vm_detail, tableset="Overview")
 
         # --- 3. Alerts Detail ---
         try:
@@ -67,7 +68,7 @@ def create_DCI(dcocfg, dcorpt):
 
                 alerts_detail = alerts_detail.apply(color_alerts_row, axis=1)
                 alerts_detail = DCOreport.column_wordwrap(alerts_detail, ["alarm_description"])
-                dcorpt.add_table("Compute", "ESX", instance, "Alerts Detail", alerts_detail, tableset="Alerts")
+                dcorpt.add_table("Compute", "ESX", full_name, "Alerts Detail", alerts_detail, tableset="Alerts")
         except Exception:
             pass
 

@@ -53,11 +53,12 @@ def colorByCSdays(val):
 def create_DCI(dcocfg, dcorpt):
     system = "PPCR"
     for instance in dcocfg.instances(system):
+        full_name = dcocfg.get_instance_full_name(system, instance)
         alertDetail = DCOreport.csv_to_styleddf(system, instance, "alertDetail", dcocfg)
         if not alertDetail.data.empty:
             alertDetail = DCOreport.column_wordwrap(alertDetail, columns=['Summary', 'Remedy'])
             alertDetail = alertDetail.apply(colorAlertBySeverityRowDeta, axis=1)
-            dcorpt.add_table("Protection", "PowerProtect Cyber Recovery", f"Instance {instance}", "Alert detail", alertDetail, tableset="ts2")
+            dcorpt.add_table("Protection", "PowerProtect Cyber Recovery", full_name, "Alert detail", alertDetail, tableset="ts2")
 
         df_policies = dcocfg.load_csv_to_dataframe(system, instance, "policiesDetail")
         if not df_policies.empty:
@@ -71,7 +72,7 @@ def create_DCI(dcocfg, dcorpt):
             policiesDetail = policiesDetail.apply(colorByPolicyDuration, axis=1)
             # Hide "elapsed_seconds" column used to colorize the policies
             policiesDetail = policiesDetail.hide(['elapsed_seconds'], axis=1)
-            dcorpt.add_table("Protection", "PowerProtect Cyber Recovery", f"Instance {instance}", "Policies", policiesDetail, tableset="ts3")
+            dcorpt.add_table("Protection", "PowerProtect Cyber Recovery", full_name, "Policies", policiesDetail, tableset="ts3")
 
         df_system = dcocfg.load_csv_to_dataframe(system, instance, "systemJobs")
         if not df_system.empty:
@@ -83,7 +84,7 @@ def create_DCI(dcocfg, dcorpt):
             systemJobs = DCOreport.table_base_styler(df_system)
             systemJobs = DCOreport.column_wordwrap(systemJobs, columns=['Detailed description'])
             systemJobs = systemJobs.apply(color_jobsByStatus, axis=1)
-            dcorpt.add_table("Protection", "PowerProtect Cyber Recovery", f"Instance {instance}", "System Jobs", systemJobs, tableset="ts4")
+            dcorpt.add_table("Protection", "PowerProtect Cyber Recovery", full_name, "System Jobs", systemJobs, tableset="ts4")
 
         df_protection = dcocfg.load_csv_to_dataframe(system, instance, "protectionJobs")
         if not df_protection.empty:
@@ -95,24 +96,29 @@ def create_DCI(dcocfg, dcorpt):
             protectionJobs = DCOreport.table_base_styler(df_protection)
             protectionJobs = DCOreport.column_wordwrap(protectionJobs, columns=['Detailed description'])
             protectionJobs = protectionJobs.apply(color_jobsByStatus, axis=1)
-            dcorpt.add_table("Protection", "PowerProtect Cyber Recovery", f"Instance {instance}", "Protection Jobs", protectionJobs, tableset="ts5")
+            dcorpt.add_table("Protection", "PowerProtect Cyber Recovery", full_name, "Protection Jobs", protectionJobs, tableset="ts5")
 
         # Add CyberSense license information
         csCapacity = DCOreport.csv_to_styleddf(system, instance, "cs_capacity", dcocfg)
         if not csCapacity.data.empty:
-            cs_instance = csCapacity.columns[1]
+            # cs_instance is a hostname, get its display name
+            cs_instance_name = csCapacity.columns[1]
+            cs_full_name = dcocfg.get_instance_full_name(system, cs_instance_name)
+            
             csCapacity = DCOreport.format_cells_by_rowid(csCapacity, 'Used percent (%)', colorByCScapacity)
             csCapacity = DCOreport.format_nums_by_rowid(csCapacity, "Used capacity (TB)", "{:.2f}")
             csCapacity = DCOreport.format_nums_by_rowid(csCapacity, "Total capacity (TB)", "{:.2f}")
             csCapacity = DCOreport.format_nums_by_rowid(csCapacity, "Used percent (%)", "{:.2f}")
-            dcorpt.add_table("Protection", "PowerProtect CyberSense", f"Instance {cs_instance}", "Capacity licensing", csCapacity, tableset="ts6")
+            dcorpt.add_table("Protection", "PowerProtect CyberSense", cs_full_name, "Capacity licensing", csCapacity, tableset="ts6")
 
         csLicense = DCOreport.csv_to_styleddf(system, instance, "cs_expiration", dcocfg)
         if not csLicense.data.empty:
-            cs_instance = csCapacity.columns[1]
+            cs_instance_name = csCapacity.columns[1]
+            cs_full_name = dcocfg.get_instance_full_name(system, cs_instance_name)
+            
             csLicense = DCOreport.format_cells_by_rowid(csLicense, 'Remaining days', colorByCSdays)
             csLicense = DCOreport.format_nums_by_rowid(csLicense, "Remaining days", "{:,.0f}")
-            dcorpt.add_table("Protection", "PowerProtect CyberSense", f"Instance {cs_instance}", "Date licensing", csLicense, tableset="ts6")
+            dcorpt.add_table("Protection", "PowerProtect CyberSense", cs_full_name, "Date licensing", csLicense, tableset="ts6")
 
 if __name__ == "__main__":
     # Load configuration and create a report

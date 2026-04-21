@@ -33,7 +33,8 @@ def create_DC(dcocfg, dcorpt):
                 ("Active Alerts",      color_status),
             ])
 
-            dcorpt.add_table("Compute", "ESX", instance, "System Summary", summary_df)
+            display_name = dcocfg.get_instance_display_name(system, instance)
+            dcorpt.add_table("Compute", "ESX", display_name, "System Summary", summary_df)
 
 
 if __name__ == "__main__":

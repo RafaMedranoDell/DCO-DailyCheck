@@ -113,6 +113,26 @@ class DCOconfig:
         else:
             return []
 
+    def get_instance_alias(self, system, instance):
+        """Get alias for instance, return None if not set"""
+        instance_data = self._getInstanceData(system, instance)
+        return instance_data.get("alias") if instance_data else None
+
+    def get_instance_display_name(self, system, instance):
+        """Get display name (alias or hostname) for instance"""
+        alias = self.get_instance_alias(system, instance)
+        return alias if alias else instance
+
+    def instances_with_display_names(self, system):
+        """Return list of display names for instances"""
+        return [self.get_instance_display_name(system, instance) 
+                for instance in self.instances(system)]
+
+    def get_instance_full_name(self, system, instance):
+        """Returns 'hostname (alias)' if alias defined, otherwise just 'hostname'"""
+        alias = self.get_instance_alias(system, instance)
+        return f"{instance} ({alias})" if alias else instance
+
     def loginInfo(self, system, instance):
         # Returns username, password, REST API port and certificate hash for a system/instance
         instance_data = self._getInstanceData(system, instance)

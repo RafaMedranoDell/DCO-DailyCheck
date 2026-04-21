@@ -121,7 +121,8 @@ def backup_cfg(fname, no_backup):
 def list_instances(cfg):
     for system_name in cfg["systems"].keys():
         for instance in cfg["systems"][system_name]["instances"]:
-            print(f'{system_name}/{instance["hostname"]}')
+            alias = f' ({instance["alias"]})' if instance.get("alias") else ""
+            print(f'{system_name}/{instance["hostname"]}{alias}')
 
 def get_instance(cfg, system_name, instance_name):
     instance_found = None
@@ -159,8 +160,14 @@ def add_instance(cfg, template, sys_instance):
     else:
         print(f'Provide username/password for {sys_instance}')
         try:
+            alias = input("Alias [optional]: ").strip() or ""
             username = input("User name: ")
-            instance = {"hostname": instance_name, "username": username, "encrypted_password": ""}
+            instance = {
+                "hostname": instance_name, 
+                "username": username, 
+                "encrypted_password": "",
+                "alias": alias
+            }
             set_password(system_name, instance)
             cfg["systems"][system_name]["instances"].append(instance)
         except KeyboardInterrupt:
@@ -183,9 +190,16 @@ def modify_instance(cfg, sys_instance):
 
     instance = get_instance(cfg, system_name, instance_name)
     if instance:
-        new_username, changed = ask_new_value("new user name", instance["username"])
-        if changed:
+        # Handle alias modification
+        current_alias = instance.get("alias", "")
+        new_alias, changed_alias = ask_new_value("new alias", current_alias)
+        if changed_alias:
+            instance["alias"] = new_alias
+
+        new_username, changed_user = ask_new_value("new user name", instance["username"])
+        if changed_user:
             instance["username"] = new_username
+        
         set_password(system_name, instance)
         return True
     else:

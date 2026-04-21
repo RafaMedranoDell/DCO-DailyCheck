@@ -34,6 +34,7 @@ def color_tiersStatus_percent(val):
 def create_DCI(dcocfg, dcorpt):
     system = "DD"
     for instance in dcocfg.instances(system):
+        full_name = dcocfg.get_instance_full_name(system, instance)
         # --- TABLAS EN PARALELO (ts1) ---
 
         # 1. TIER STATUS (Columna 1)
@@ -46,7 +47,7 @@ def create_DCI(dcocfg, dcorpt):
                 "Used (TB)": "{:.2f}",
                 "Available (TB)": "{:.2f}"
             })
-            dcorpt.add_table("Protection", "Data Domain", f"{instance}", "Tier Status", tiersStatus, tableset="ts1/col1")
+            dcorpt.add_table("Protection", "Data Domain", f"{full_name}", "Tier Status", tiersStatus, tableset="ts1/col1")
 
         # 2. REPLICATION STATUS (Columna 2)
         replicasStatus = DCOreport.csv_to_styleddf(system, instance,  "replicasStatus", dcocfg)
@@ -55,7 +56,7 @@ def create_DCI(dcocfg, dcorpt):
             # Hide "elapsed_seconds" column used to colorize the policies
             replicasStatus = replicasStatus.hide(['secondsSinceLastSync'], axis=1)
             # Título actualizado a "Replication Status"
-            dcorpt.add_table("Protection", "Data Domain", f"{instance}", "Replication Status", replicasStatus, tableset="ts1/col2")
+            dcorpt.add_table("Protection", "Data Domain", f"{full_name}", "Replication Status", replicasStatus, tableset="ts1/col2")
 
         # --- TABLA INFERIOR (ts2) ---
 
@@ -64,7 +65,7 @@ def create_DCI(dcocfg, dcorpt):
         if not alertsDetail.data.empty:
             alertsDetail = DCOreport.column_wordwrap(alertsDetail, ["Description", "Message"])
             alertsDetail = alertsDetail.apply(color_alertsDetail, axis=1)
-            dcorpt.add_table("Protection", "Data Domain", f"{instance}", "Alerts Detail", alertsDetail, tableset="ts2")
+            dcorpt.add_table("Protection", "Data Domain", f"{full_name}", "Alerts Detail", alertsDetail, tableset="ts2")
 
 if __name__ == "__main__":
     # Load configuration and create a report

@@ -10,7 +10,7 @@ from getpass import getpass
 import common.functions as fn
 
 # Script version and changelog
-__version__ = "1.14.1"
+__version__ = "1.15.0"
 
 CHANGELOG = [
     ("1.0",  "SCRIPT",  "Initial baseline version"),
@@ -38,6 +38,9 @@ CHANGELOG = [
     ("",       "IDRAC", "Implemented row-level color coding for all logs (Critical=Red, Warning=Yellow) in DCI"),
     ("1.14.1", "DEPLOY",  "Fixed ESX module exclusion in deploy-pack.py script"),
     ("",       "DEPLOY",  "Added version prefix to the deployment package filename"),
+    ("1.15.0", "CONFIG",  "Implemented Alias System for user-friendly instance names in reports"),
+    ("",       "CONFIG",  "Updated config_tool.py to support alias management (--add, --modify, --list)"),
+    ("",       "REPORTS", "Improved DCI headers to 'hostname (alias)' format for better technical reference"),
 ]
 
 # Get the logger for this module

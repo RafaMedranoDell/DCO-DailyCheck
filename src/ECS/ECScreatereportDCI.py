@@ -32,6 +32,7 @@ def colorAlertBySeverity(row):
 def create_DCI(dcocfg, dcorpt):
     system = "ECS"
     for instance in dcocfg.instances(system):
+        full_name = dcocfg.get_instance_full_name(system, instance)
 
         # --- 1. Nodes Table (Exception-based) ---
         nodes_sdf = DCOreport.csv_to_styleddf(system, instance, 'nodes', dcocfg)
@@ -54,7 +55,7 @@ def create_DCI(dcocfg, dcorpt):
                         nodes_sdf,
                         [("Bad Nodes", colorRedNonZero),
                         ("Maintenance Nodes", colorYellowNonZero)])
-                    dcorpt.add_table("Storage", "ECS", f'Instance: {instance}', 'Nodes', nodes_sdf, "ts1")
+                    dcorpt.add_table("Storage", "ECS", full_name, 'Nodes', nodes_sdf, "ts1")
             except Exception as e:
                 logger.error(f"Error processing Nodes exceptions for {instance}: {e}")
 
@@ -79,7 +80,7 @@ def create_DCI(dcocfg, dcorpt):
                         disks_sdf,
                         [("Bad Disks", colorRedNonZero),
                         ("Maintenance Disks", colorYellowNonZero)])
-                    dcorpt.add_table("Storage", "ECS", f'Instance: {instance}', 'Disks', disks_sdf, "ts1")
+                    dcorpt.add_table("Storage", "ECS", full_name, 'Disks', disks_sdf, "ts1")
             except Exception as e:
                 logger.error(f"Error processing Disks exceptions for {instance}: {e}")
 
@@ -92,13 +93,13 @@ def create_DCI(dcocfg, dcorpt):
             space_sdf = DCOreport.format_nums_by_rowid(space_sdf, "Space Allocated (TB)", "{:,.2f}")
             space_sdf = DCOreport.format_nums_by_rowid(space_sdf, "Space Free (TB)", "{:,.2f}")
             space_sdf = DCOreport.format_nums_by_rowid(space_sdf, "Space Allocated (%)", "{:.2f}")
-            dcorpt.add_table("Storage", "ECS", f'Instance: {instance}', 'Space', space_sdf, "ts1")
+            dcorpt.add_table("Storage", "ECS", full_name, 'Space', space_sdf, "ts1")
 
         alertDetail = DCOreport.csv_to_styleddf(system, instance,  "alertsDetail", dcocfg)
         if not alertDetail.data.empty:
             alertDetail = DCOreport.column_wordwrap(alertDetail, columns=['Description'])
             alertDetail = alertDetail.apply(colorAlertBySeverity, axis=1)
-            dcorpt.add_table("Storage", "ECS", f'Instance: {instance}', "Alert Detail", alertDetail, "ts2")
+            dcorpt.add_table("Storage", "ECS", full_name, "Alert Detail", alertDetail, "ts2")
 
 if __name__ == "__main__":
     # Load configuration and create a report

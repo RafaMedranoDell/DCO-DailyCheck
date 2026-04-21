@@ -26,6 +26,7 @@ def create_DCI(dcocfg, dcorpt):
     Entry point to add detailed vCenter tables to the DCI report.
     """
     for instance in dcocfg.instances(system):
+        full_name = dcocfg.get_instance_full_name(system, instance)
         # --- 1. Datastore Status Table ---
         ds_detail = DCOreport.csv_to_styleddf(system, instance, "datastoreStatus", dcocfg)
         if not ds_detail.data.empty:
@@ -42,7 +43,7 @@ def create_DCI(dcocfg, dcorpt):
             # Word wrap for hosts column (can be long)
             ds_detail = DCOreport.column_wordwrap(ds_detail, ["hosts"])
             
-            dcorpt.add_table("Compute", "vSphere", instance, "Datastore Capacity Detail", ds_detail, tableset="Overview")
+            dcorpt.add_table("Compute", "vSphere", full_name, "Datastore Capacity Detail", ds_detail, tableset="Overview")
 
         # --- 2. Host Connectivity Table ---
         df_hosts = dcocfg.load_csv_to_dataframe(system, instance, "hostStatus")
@@ -54,7 +55,7 @@ def create_DCI(dcocfg, dcorpt):
                 # Simple styling: make them all red as they are in alert state
                 host_detail = DCOreport.table_base_styler(bad_hosts)
                 host_detail = host_detail.apply(lambda row: [DCOreport.PASTEL_RED] * len(row), axis=1)
-                dcorpt.add_table("Compute", "vSphere", instance, "Host Connectivity Detail", host_detail, tableset="Overview")
+                dcorpt.add_table("Compute", "vSphere", full_name, "Host Connectivity Detail", host_detail, tableset="Overview")
         
         # --- 3. VM Status Table ---
         # Load raw dataframe first to filter
@@ -73,7 +74,7 @@ def create_DCI(dcocfg, dcorpt):
                 # Column word wrap for VM names if they are long
                 vm_detail = DCOreport.column_wordwrap(vm_detail, ["name"])
                 
-                dcorpt.add_table("Compute", "vSphere", instance, "VM Power Status Detail", vm_detail, tableset="Overview")
+                dcorpt.add_table("Compute", "vSphere", full_name, "VM Power Status Detail", vm_detail, tableset="Overview")
             
         # --- 4. Alerts Detail Table ---
         # This will contain trigged alarms from the last scan
@@ -96,7 +97,7 @@ def create_DCI(dcocfg, dcorpt):
                 # Column word wrap for description
                 alerts_detail = DCOreport.column_wordwrap(alerts_detail, ["alarm_description"])
                 
-                dcorpt.add_table("Compute", "vSphere", instance, "Alerts Detail", alerts_detail, tableset="Alerts")
+                dcorpt.add_table("Compute", "vSphere", full_name, "Alerts Detail", alerts_detail, tableset="Alerts")
         except Exception as e:
             # Handle case where file might not exist yet if soap failed
             pass

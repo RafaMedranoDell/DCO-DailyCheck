@@ -49,30 +49,31 @@ def create_DCI(dcocfg, dcorpt):
     system = "OS10"
 
     for instance in dcocfg.instances(system):
+        full_name = dcocfg.get_instance_full_name(system, instance)
         systemSummary = DCOreport.csv_to_styleddf(system, instance,  "systemSummary", dcocfg)
         if not systemSummary.data.empty:
             systemSummary = DCOreport.apply_styler_map(systemSummary, colorBySeverityVal)
-            dcorpt.add_table("Network", "Switches", f"{instance}", "System Summary", systemSummary, tableset="Summary1")
+            dcorpt.add_table("Network", "Switches", full_name, "System Summary", systemSummary, tableset="Summary1")
 
         powersuplies = DCOreport.csv_to_styleddf(system, instance,  "powersuplies", dcocfg)
         if not powersuplies.data.empty:
             powersuplies = powersuplies.apply(colorByStatus, axis=1)
-            dcorpt.add_table("Network", "Switches", f"{instance}", "Power Supplies", powersuplies, tableset="Summary2/col1")
+            dcorpt.add_table("Network", "Switches", full_name, "Power Supplies", powersuplies, tableset="Summary2/col1")
 
         fans = DCOreport.csv_to_styleddf(system, instance,  "fans", dcocfg)
         if not fans.data.empty:
             fans = fans.apply(colorByStatus, axis=1)
-            dcorpt.add_table("Network", "Switches", f"{instance}", "Fans", fans, tableset="Summary2/col1")
+            dcorpt.add_table("Network", "Switches", full_name, "Fans", fans, tableset="Summary2/col1")
 
         thermal = DCOreport.csv_to_styleddf(system, instance,  "thermal", dcocfg)
         if not thermal.data.empty:
             thermal = thermal.apply(colorTempRows, axis=1)
-            dcorpt.add_table("Network", "Switches", f"{instance}", "Temperatures", thermal, tableset="Summary2/col1")
+            dcorpt.add_table("Network", "Switches", full_name, "Temperatures", thermal, tableset="Summary2/col1")
 
         portSummary = DCOreport.csv_to_styleddf(system, instance,  "port_status", dcocfg)
         if not portSummary.data.empty:
             portSummary = portSummary.apply(colorPortByExpectedStatus, axis=1)
-            dcorpt.add_table("Network", "Switches", f"{instance}", "Port Status", portSummary, tableset="Summary2")
+            dcorpt.add_table("Network", "Switches", full_name, "Port Status", portSummary, tableset="Summary2")
 
         alertSummary = DCOreport.csv_to_styleddf(system, instance,  "alertSummary", dcocfg)
         if not alertSummary.data.empty:
@@ -82,13 +83,13 @@ def create_DCI(dcocfg, dcorpt):
                 ("Major", colorRedNonZero),
                 ("Warning", colorYellowNonZero)]
             )
-            dcorpt.add_table("Network", "Switches", f"{instance}", "Alert Summary", alertSummary, tableset="Summary1")
+            dcorpt.add_table("Network", "Switches", full_name, "Alert Summary", alertSummary, tableset="Summary1")
 
         alertDetail = DCOreport.csv_to_styleddf(system, instance,  "alertDetail", dcocfg)
         if not alertDetail.data.empty:
             alertDetail = DCOreport.column_wordwrap(alertDetail, ["Description"])
             alertDetail = alertDetail.apply(colorBySeverityRow, axis=1)
-            dcorpt.add_table("Network", "Switches", f"{instance}", "Alerts By Severity", alertDetail, tableset="alertDetail")
+            dcorpt.add_table("Network", "Switches", full_name, "Alerts By Severity", alertDetail, tableset="alertDetail")
 
 if __name__ == "__main__":
     # Load configuration and create a report

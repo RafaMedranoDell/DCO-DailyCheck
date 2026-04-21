@@ -38,6 +38,7 @@
                 {
                     "hostname": "",
                     "username": "",
+                    "alias": "",
                     "password": "",
                     "certHash": ""
                 }
@@ -71,6 +72,7 @@
                 {
                     "hostname": "",
                     "username": "",
+                    "alias": "",
                     "password": "",
                     "certHash": ""
                 }
@@ -101,6 +103,7 @@
                 {
                     "hostname": "",
                     "username": "",
+                    "alias": "",
                     "password": "",
                     "certHash": "",
                     "info": {
@@ -141,6 +144,7 @@
                 {
                     "hostname": "",
                     "username": "",
+                    "alias": "",
                     "password": "",
                     "certHash": ""
                 }
@@ -169,6 +173,7 @@
                 {
                     "hostname": "",
                     "username": "",
+                    "alias": "",
                     "password": "",
                     "certHash": ""
                 }
@@ -207,6 +212,7 @@
                 {
                     "hostname": "",
                     "username": "",
+                    "alias": "",
                     "password": "",
                     "certHash": ""
                 }
@@ -233,6 +239,7 @@
                 {
                     "hostname": "10.3.64.16",
                     "username": "dco-monitor@vsphere.local",
+                    "alias": "",
                     "certFile": "",
                     "encrypted_password": "password"
                 }
@@ -263,6 +270,7 @@
                 {
                     "hostname": "",
                     "username": "",
+                    "alias": "",
                     "encrypted_password": ""
                 }
             ]
