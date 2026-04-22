@@ -17,7 +17,8 @@ deploy_file_list = [
     "src/common/DCOconfig.py",
     "src/common/DCOreport.py",
     "src/TEMPLATEconfig.json",
-    "src/config_tool.py"
+    "src/config_tool.py",
+    "src/MANUAL.md"
 ]
 
 for product in product_list:
