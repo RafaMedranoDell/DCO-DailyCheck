@@ -60,6 +60,10 @@ def process_policies(data, system, instance, dcocfg):
     # Compute the elapsed time since the last update in each policy
     policies['elapsed_seconds'] = (int(current_time.timestamp()) - pd.to_numeric(policies['modifiedDate']))
 
+    # Fill NaN (policies with no modifiedDate, e.g. never executed) with a very
+    # large sentinel value so they are treated as "very old" and excluded from OK count
+    policies['elapsed_seconds'] = policies['elapsed_seconds'].fillna(9999999)
+
     # Format the elapsed time
     policies['Time since last update'] = policies['elapsed_seconds'].apply(fn.format_duration)
 

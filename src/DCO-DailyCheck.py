@@ -10,7 +10,7 @@ from getpass import getpass
 import common.functions as fn
 
 # Script version and changelog
-__version__ = "1.15.1"
+__version__ = "1.15.2"
 
 CHANGELOG = [
     ("1.0",  "SCRIPT",  "Initial baseline version"),
@@ -42,6 +42,8 @@ CHANGELOG = [
     ("",       "CONFIG",  "Updated config_tool.py to support alias management (--add, --modify, --list)"),
     ("",       "REPORTS", "Improved DCI headers to 'hostname (alias)' format for better technical reference"),
     ("1.15.1", "DOCS",    "Added MANUAL.md with usage guide for colleagues"),
+    ("1.15.2", "PPCR",    "Fixed crash when a PPCR policy has no modification date (null modifiedDate)"),
+    ("",       "PPCR",    "Hardened format_duration() to safely return 'N/A' for NaN/null/infinite values"),
 ]
 
 # Get the logger for this module

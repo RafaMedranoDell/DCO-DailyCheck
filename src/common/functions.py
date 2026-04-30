@@ -427,7 +427,8 @@ def filter_by_time(df, dt_column, dt_fmt, start_time, include_nat=False):
 
 def format_duration(seconds):
     """
-    Formats a amount of time in seconds to days, hours and minutes
+    Formats a amount of time in seconds to days, hours and minutes.
+    Returns 'N/A' if the value is None, NaN, or infinite.
 
     Examples:
     --------
@@ -438,6 +439,9 @@ def format_duration(seconds):
     policies['Elapsed time'] = dataframe['elapsed'].apply(format_duration)
 
     """
+    import math
+    if seconds is None or (isinstance(seconds, float) and (math.isnan(seconds) or math.isinf(seconds))):
+        return "N/A"
     total_minutes = int(seconds // 60)
     days = total_minutes // (24 * 60)
     hours = (total_minutes % (24 * 60)) // 60
@@ -512,7 +516,16 @@ def df_timestamps_to_dates(df: pd.DataFrame, columns: list) -> pd.DataFrame:
     0 2023-10-12 00:00:00      1
     """
     valid_columns = [col for col in columns if col in df.columns]
-    return df.assign(**{col: df[col].map(lambda x: datetime.fromtimestamp(int(x))) for col in valid_columns})
+
+    def safe_convert(x):
+        try:
+            if x is None or str(x).strip() == "" or str(x).lower() == "nan":
+                return pd.NaT
+            return datetime.fromtimestamp(int(float(x)))
+        except (ValueError, TypeError, OverflowError):
+            return pd.NaT
+
+    return df.assign(**{col: df[col].map(safe_convert) for col in valid_columns})
 
 
 def reformat_date(fmt_in: str, fmt_out: str, date: str) -> str:
