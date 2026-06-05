@@ -172,6 +172,14 @@ These are the steps to follow to obtain a reduced version of WinPython, but with
    - The reports can be generated as HTML and/or Excel formats
 
 ### Basic usage
+
+- **Certificate Auto‑Update**
+  - Configuration key: `auto_update_certs` (default `false`).
+  - When `true`, automatic SSL‑certificate updates are performed during the `getinfo` phase.
+  - When `false`, a mismatched certificate causes the script to fail.
+  - Interactive prompt (`config_tool.py --interactive`) validates this flag, accepting only `True`, `False`, or **Enter** to keep the current value.
+
+
 - Info retrieval phase
    - Confirm that the "config.json" (config_encrypted.json) have the right format and the complete list of elements to monitor by listing them:
       ```

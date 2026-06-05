@@ -235,7 +235,7 @@ def getinfo(dcocfg, **kwargs):
         api_port, username, password, cert_hash = dcocfg.loginInfo(system, instance)
 
         # Check the certificate hash
-        if not fn.valid_certificate_fingerprint(instance, api_port, cert_hash):
+        if not fn.valid_certificate_fingerprint(instance, api_port, cert_hash, dcocfg, system, instance):
             continue
 
         access_token = get_token_ECS(instance, api_port, username, password, cert_hash)

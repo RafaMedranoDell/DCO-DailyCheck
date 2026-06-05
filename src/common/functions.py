@@ -14,6 +14,7 @@ import socket
 import ssl
 import webbrowser
 import zipfile
+import sys
 
 def get_module_logger(module_name):
     # Setups a local module logger with the provided module_name
@@ -23,6 +24,43 @@ def get_module_logger(module_name):
 
 # Configure module logger
 logger = get_module_logger(__name__)
+
+def as_bool(value):
+    """Convert common config values to a strict boolean.
+    Accepts bool, int, or string representations like "true", "1", "yes", "y".
+    Anything else is treated as False.
+    """
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return bool(value)
+    if isinstance(value, str):
+        return value.strip().lower() in {"true", "1", "yes", "y"}
+    return False
+
+
+def prompt_bool(key, current):
+    """Prompt user for a boolean value with current default and validation.
+    Displays: `Enter <key> [<current>] (True/False): `
+    * Press Enter to keep the current value.
+    * Accepts case‑insensitive inputs: true/t/1 or false/f/0.
+    * Repeats until a valid response is given.
+    Returns the resulting boolean.
+    """
+    while True:
+        try:
+            answer = input(f"Enter {key} [{current}] (True/False): ").strip()
+        except KeyboardInterrupt:
+            print("\nExiting without changes!")
+            sys.exit(0)
+        if answer == "":
+            return current
+        lowered = answer.lower()
+        if lowered in {"true", "t", "1"}:
+            return True
+        if lowered in {"false", "f", "0"}:
+            return False
+        print("Invalid input – please enter True or False, or press Enter to keep the current value.")
 
 # Funcion para leer configuracion desde JSON
 def load_json_file(json_file):
@@ -37,6 +75,28 @@ def save_json(data, system, instance, query_name, base_path):
         json.dump(data, file, indent=4)
     logger.error(f'Data saved in: {output_file}')
 
+
+def scalar_first(d):
+    """
+    Separate scalar and nested dict items at first level.
+    This ensures the JSON file remains human-readable.
+    """
+    scalars = {k: v for k, v in d.items() if not isinstance(v, dict)}
+    nested = {k: v for k, v in d.items() if isinstance(v, dict)}
+    return {**scalars, **nested}
+
+
+def save_cfg(cfg, fname):
+    """
+    Save a json/config into a file name, using scalar_first formatting.
+    """
+    try:
+        with open(fname, "wt") as f:
+            json.dump(scalar_first(cfg), f, indent=4)
+        logger.info(f'New config saved in {fname}')
+    except OSError as e:
+        logger.error(f'Error saving config: {e}')
+        raise e
 
 def save_dataframe_to_csv(df, file_path, header=True):
     """Saves the DataFrame to a CSV file."""
@@ -329,9 +389,23 @@ def get_certificate_fingerprint(host, port=443, timeout=5):
         logger.error(f"Unexpected error: {e}")
         return ""
 
-def valid_certificate_fingerprint(host, port, cert_hash):
+def valid_certificate_fingerprint(host, port, cert_hash, dcocfg=None, system=None, instance=None):
+    """
+    Validates the certificate fingerprint. If it doesn't match and the global
+    auto_update_certs flag is True, it auto-updates the configuration.
+    """
     api_cert_hash = get_certificate_fingerprint(host, port)
     if cert_hash != api_cert_hash:
+        # Check if auto-update is enabled and we have the necessary objects
+        auto_update = False
+        if dcocfg:
+            auto_update = as_bool(dcocfg.config.get("auto_update_certs", False))
+
+        if dcocfg and system and instance and auto_update:
+            logger.warning(f'{system}/{instance} certificate hash changed. Updating automatically.')
+            dcocfg.update_certificate_hash(system, instance, api_cert_hash)
+            return True
+            
         logger.critical(f'{host} certificate hash "{api_cert_hash}" does not match')
         return False
     return True

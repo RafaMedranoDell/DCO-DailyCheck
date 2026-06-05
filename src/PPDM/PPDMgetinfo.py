@@ -341,7 +341,7 @@ def getinfo(dcocfg, **kwargs):
         api_port, username, password, cert_hash = dcocfg.loginInfo(system, instance)
 
         # Check the certificate hash (Security Pinning)
-        if not fn.valid_certificate_fingerprint(instance, api_port, cert_hash):
+        if not fn.valid_certificate_fingerprint(instance, api_port, cert_hash, dcocfg, system, instance):
             continue
 
         # Obtain the authentication token and fetch data

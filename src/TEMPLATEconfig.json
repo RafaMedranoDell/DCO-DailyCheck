@@ -1,5 +1,6 @@
 {
     "basePath": "",
+    "auto_update_certs": false,
     "logPath": "files/logs",
     "jsonPath": "files/json",
     "csvPath": "files/csv",

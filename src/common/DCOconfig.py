@@ -24,6 +24,7 @@ class DCOconfig:
             - data_type: keyword describing the kind of contents the file has
     """
     def __init__(self, config_fname):
+        self.config_fname = config_fname
         with open(config_fname, "rt") as f:
             self.config = json.load(f)
         self.base_path = self.config["basePath"]
@@ -142,6 +143,42 @@ class DCOconfig:
         api_port = instance_data.get('api_port', self.config['systems'][system]['cfg']['api_port'])
         cert_hash = instance_data.get('certHash', '')
         return api_port, instance_data["username"], password, cert_hash
+
+    def update_certificate_hash(self, system, instance, new_hash):
+        """Update the certificate hash for a specific instance.
+
+        This method reloads the original configuration file to ensure that any
+        prior ``limit_to`` filtering does not permanently remove other system
+        entries. It then updates the ``certHash`` for the targeted instance and
+        writes the complete configuration back to disk.
+        """
+        # Load the full configuration from disk to avoid side‑effects of any in‑memory
+        # filtering (e.g., ``limit_to``) that may have removed other systems.
+        try:
+            with open(self.config_fname, "rt") as f:
+                full_cfg = json.load(f)
+        except Exception as e:
+            self.log(logging.ERROR, f"Failed to reload config for certificate update: {e}")
+            return
+
+        # Locate the instance data within the full configuration.
+        instance_data = None
+        try:
+            for inst in full_cfg["systems"][system]["instances"]:
+                if inst["hostname"] == instance:
+                    instance_data = inst
+                    break
+        except KeyError as e:
+            self.log(logging.ERROR, f"Configuration structure unexpected during cert update: {e}")
+            return
+
+        if instance_data:
+            instance_data["certHash"] = new_hash
+            fn.save_cfg(full_cfg, self.config_fname)
+            self.config = full_cfg  # Keep in‑memory config in sync
+            self.log(logging.INFO, f"Certificate hash updated for {system}/{instance} in {self.config_fname}")
+        else:
+            self.log(logging.ERROR, f"Instance {instance} not found in system {system} during cert update.")
 
     def instanceInfo(self, system, instance):
         instance_data = self._getInstanceData(system, instance)

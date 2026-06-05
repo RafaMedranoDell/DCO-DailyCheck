@@ -7,7 +7,7 @@ import pathlib
 import sys
 
 from common.password_manager import PasswordManager
-from common.functions import get_certificate_fingerprint
+from common.functions import get_certificate_fingerprint, save_cfg, as_bool, prompt_bool
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Configuration management tool')
@@ -85,23 +85,6 @@ def load_cfg(fname):
         print(f'Unable to open file {fname}: {e}')
         sys.exit(1)
     return js
-
-def scalar_first(d):
-    # Separate scalar and nested dict items at first level
-    scalars = {k: v for k, v in d.items() if not isinstance(v, dict)}
-    nested = {k: v for k, v in d.items() if isinstance(v, dict)}
-    # Combine, scalars first, then nested, no recursive sorting
-    return {**scalars, **nested}
-
-def save_cfg(cfg, fname):
-    # Save a json/config into a file name
-    try:
-        with open(fname, "wt") as f:
-            json.dump(scalar_first(cfg), f, indent=4)
-        print(f'New config saved in {fname}')
-    except OSError  as e:
-        print(f'Error: {e}')
-        sys.exit(1)
 
 def backup_cfg(fname, no_backup):
     # Rename a filename to adding a the date/time as subfix
@@ -231,8 +214,17 @@ def configure_interactive_settings(orig_cfg, prefix=""):
     for item_name in orig_cfg.keys():
         if not isinstance(orig_cfg[item_name], dict):
             show_item_name = f'{prefix} {item_name}' if prefix else item_name
-            new_value, changed = ask_new_value(show_item_name, orig_cfg[item_name])
+            current_val = orig_cfg[item_name]
+            # Use specialized prompt for boolean configuration keys
+            if isinstance(current_val, bool) or item_name == "auto_update_certs":
+                new_value = prompt_bool(show_item_name, current_val)
+                changed = (new_value != current_val)
+            else:
+                new_value, changed = ask_new_value(show_item_name, current_val)
             if changed:
+                # Ensure booleans stay bool type
+                if isinstance(current_val, bool):
+                    new_value = as_bool(new_value)
                 orig_cfg[item_name] = new_value
                 any_changed = True
 
