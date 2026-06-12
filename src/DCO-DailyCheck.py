@@ -49,6 +49,7 @@ CHANGELOG = [
     ("",       "IDRAC",   "Fixed Log Status color for Warning to use standard pastel yellow"),
     ("",       "DD",      "Fixed System Alerts color mapping to display warnings in pastel yellow"),
     ("",       "DD",      "Fixed a crash in DDreportDCI caused by unhandled alert severities"),
+    ("",       "DD",      "Optimized module by removing dead code and unused API calls for alerts and services"),
 ]
 
 # Get the logger for this module

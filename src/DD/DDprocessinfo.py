@@ -10,162 +10,6 @@ system = "DD"
 # Configure module logger
 logger = fn.get_module_logger(__name__)
 
-def process_alerts_by_severity(system, instance, data_type, dcocfg):
-    """
-    Processes the 'severity' data from a DataFrame, counting the occurrences of each severity level
-    and saving the results to a CSV file.
-
-    Parameters:
-    data (str): The data loaded from the file.
-    system (str): The system from which the alert data originates.
-    instance (str): The instance of the system.
-    dcocfg (DCOconfig): Configuration object.
-    """
-    data = dcocfg.load_json(system, instance, data_type)
-
-    # Convert JSON data into dataframe
-    df = pd.DataFrame(columns=['severity']) if not data else pd.DataFrame(data)
-
-    # Possible alert severity levels
-    possible_severityAlerts = [
-        "EMERGENCY", "ALERT", "CRITICAL", "ERROR",
-        "WARNING", "NOTICE", "INFO", "DEBUG"
-    ]
-
-    if not df.empty:
-        # Count occurrences of each value in 'severity' in the original DataFrame
-        severity_counts = df['severity'].value_counts()
-    else:
-        severity_counts = pd.Series(0, index=possible_severityAlerts)
-
-    # Create a DataFrame ensuring all possible severity values are included
-    df_num_alerts_by_severity = pd.DataFrame(possible_severityAlerts, columns=['severity'])
-    df_num_alerts_by_severity['NumAlerts'] = df_num_alerts_by_severity['severity'].map(severity_counts).fillna(0).astype(int)
-
-    selected_columns = {
-        "severity": "Severity",
-        "NumAlerts": "# Alerts"
-    }
-    # Rename and select columns, and save to the CSV
-    df_num_alerts_by_severity = df_num_alerts_by_severity.reindex(columns=selected_columns.keys()).rename(columns=selected_columns)
-    # Save the data to CSV file
-    dcocfg.save_dataframe_to_csv(df_num_alerts_by_severity, system, instance, "alertsBySeverity")
-
-
-def process_alerts_by_class(system, instance, data_type, dcocfg):
-    """
-    Processes alert data by class, categorizing them into high and low priority alerts,
-    counting occurrences of each alert class, and saving the results to a CSV file.
-
-    Parameters:
-    data (str): The data loaded from the file.
-    system (str): The system from which the alert data originates.
-    instance (str): The instance of the system.
-    dcocfg (DCOconfig): Configuration object.
-    """
-    data = dcocfg.load_json(system, instance, data_type)
-
-    # Possible alert classes and their user friendly names
-    alerts_by_class = {
-        "capacity": "Capacity",
-        "Cifs": "CIFS",
-        "Cloud": "Cloud",
-        "Cluster": "Cluster",
-        "dataAvailability": "Data Availability",
-        "Environment": "Environment",
-        "Filesystem": "Filesystem",
-        "Firmware": "Firmware",
-        "ha": "HA",
-        "HardwareFailure": "Hardware Failure",
-        "infrastructure": "Infrastructure",
-        "Network": "Network",
-        "Replication": "Replication",
-        "Security": "Security",
-        "Syslog": "Syslog",
-        "SystemMaintenance": "System Maintenance",
-        "Storage": "Storage"
-    }
-
-    # Severity categories
-    high_priority_severities = ["EMERGENCY", "ALERT", "CRITICAL", "ERROR"]
-    low_priority_severities = ["WARNING", "NOTICE", "INFO", "DEBUG"]
-
-    # If JSON file is empty, create default Dataframes
-    if not data:
-        # Create df_num_alerts_by_class with zeros
-        df_num_alerts_by_class =pd.DataFrame({
-            'class': alerts_by_class.keys(),
-            'high Priority Alerts': 0,
-            'low Priority Alerts': 0
-        })
-
-        # Create df_num_alerts_by_class_reduced with 'OK' status
-        df_num_alerts_by_class_reduced = pd.DataFrame({
-            'class': alerts_by_class.keys(),
-            'status': 'OK'
-        })
-
-    else:
-
-        df = pd.DataFrame(data)
-
-        # Filter the DataFrame for high and low priorities
-        high_priority_df = df[df['severity'].isin(high_priority_severities)]
-        low_priority_df = df[df['severity'].isin(low_priority_severities)]
-
-        # Count occurrences of 'class' for each priority
-        high_priority_counts = high_priority_df['class'].value_counts()
-        low_priority_counts = low_priority_df['class'].value_counts()
-
-        # Create a DataFrame ensuring all possible values of 'class' are included
-        df_num_alerts_by_class = pd.DataFrame(alerts_by_class.keys(), columns=['class'])
-        df_num_alerts_by_class['high Priority Alerts'] = df_num_alerts_by_class['class'].map(high_priority_counts).fillna(0).astype(int)
-        df_num_alerts_by_class['low Priority Alerts'] = df_num_alerts_by_class['class'].map(low_priority_counts).fillna(0).astype(int)
-
-
-        # Determine the status based on high and low priority alerts
-        def determine_status(row):
-            if row["high Priority Alerts"] > 0:
-                return "ERROR"
-            elif row["high Priority Alerts"] == 0 and row["low Priority Alerts"] > 0:
-                return "WARNING"
-            elif row["high Priority Alerts"] == 0 and row["low Priority Alerts"] == 0:
-                return "OK"
-            else:
-                return "UNKNOWN"  # Caso no especificado
-
-        # Create a new DataFrame for the reduced version with 'class' and 'status' columns
-        df_num_alerts_by_class_reduced = df_num_alerts_by_class[['class']].copy()
-        df_num_alerts_by_class_reduced['status'] = df_num_alerts_by_class.apply(determine_status, axis=1)
-
-    selected_columns = {
-        "class": "Class",
-        "high Priority Alerts": "High Priority Alerts",
-        "low Priority Alerts": "Low Priority Alerts"
-    }
-    # Rename and select columns, and save to the CSV
-    df_num_alerts_by_class = df_num_alerts_by_class.reindex(columns=selected_columns.keys()).rename(columns=selected_columns)
-
-    # Rename alerts by user friendly names
-    df_num_alerts_by_class['Class'] = df_num_alerts_by_class['Class'].replace(alerts_by_class)
-
-    # Save the DataFrame as a CSV
-    dcocfg.save_dataframe_to_csv(df_num_alerts_by_class, system, instance, "alertsByClass")
-
-    selected_columns = {
-        "class": "Class",
-        "status": "Status"
-    }
-    # Rename and select columns, and save to the CSV
-    df_num_alerts_by_class_reduced = df_num_alerts_by_class_reduced.reindex(columns=selected_columns.keys()).rename(columns=selected_columns)
-
-    # Rename alerts by user friendly names
-    df_num_alerts_by_class_reduced['Class'] = df_num_alerts_by_class_reduced['Class'].replace(alerts_by_class)
-
-    # Save the reduced DataFrame as a CSV
-    dcocfg.save_dataframe_to_csv(df_num_alerts_by_class_reduced, system, instance, "alertsByClassReduced")
-
-
 def process_alerts_detail(data, system, instance, dcocfg):
     """
     Processes the detailed alert data by filtering the desired columns and saving the result as a CSV file.
@@ -198,31 +42,6 @@ def process_alerts_detail(data, system, instance, dcocfg):
     df = df.reindex(columns=selected_columns.keys()).rename(columns=selected_columns)
     # Save the DataFrame as a CSV
     dcocfg.save_dataframe_to_csv(df, system, instance, "alertsDetail")
-
-
-def process_services_status(data, system, instance, dcocfg):
-    """
-    Processes the service status data and saves it as a CSV file.
-
-    Parameters:
-    data (str): The data loaded from the file.
-    system (str): The system from which the alert data originates.
-    instance (str): The instance of the system.
-    dcocfg (DCOconfig): Configuration object.
-    """
-    # Convert JSON data into dataframe
-    df = pd.DataFrame(data)
-
-    selected_columns = {
-        'name': "Name",
-        'status': "Status"
-    }
-
-    # Rename and select columns, and save to the CSV
-    df = df.reindex(columns=selected_columns.keys()).rename(columns=selected_columns)
-
-    # Save the DataFrame as a CSV
-    dcocfg.save_dataframe_to_csv(df, system, instance, "servicesStatus")
 
 
 def process_replicas_status(data, system, instance, dcocfg):
@@ -390,16 +209,8 @@ def proccess_info(dcocfg):
     for instance in dcocfg.instances(system):
         logger.info(f'Processing info from: "{instance}"')
 
-        # Process Active Alerts
-        # Do not use fn.process_if_not_empty() as it would skip the skips when there are no alerts
-        process_alerts_by_severity(system, instance, "activeAlerts", dcocfg)
-        process_alerts_by_class(system, instance, "activeAlerts", dcocfg)
-
         # Process detailed list alert
         fn.process_if_not_empty(process_alerts_detail, system, instance, "activeAlerts", dcocfg)
-
-        # Process Status of Services
-        fn.process_if_not_empty(process_services_status, system, instance, "services", dcocfg)
 
         # Process Status of Replicas
         fn.process_if_not_empty(process_replicas_status, system, instance, "replicas", dcocfg)

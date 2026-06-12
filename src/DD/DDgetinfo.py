@@ -120,61 +120,6 @@ def dd_get_alerts(instance, api_port, access_token, cert_hash):
 
 
 
-def dd_get_services(instance, api_port, access_token, cert_hash):
-    """
-    Fetch specified services from a Data Domain instance.
-
-    Parameters:
-    - instance (str): The hostname or IP address of the Data Domain instance.
-    - access_token (str): The authentication token used for accessing the Data Domain API.
-    - cert_hash (str): Path to the certificate file for secure connection (unused in the current function).
-
-    Returns:
-    - list: A list of filtered services with their names and status, or an empty list if no services are found or on error.
-    """
-
-    # Define the URL for the Data Domain API endpoint to fetch services
-    url = f'https://{instance}:{api_port}/rest/v1.0/dd-systems/0/services'
-
-    headers = {
-        "X-DD-AUTH-TOKEN": access_token  # Include the authentication token in the request headers
-    }
-
-    # Define the filter expression to retrieve specific services
-    filter_expression = "name = filesys|replication|encryption|ddboost|cifs|nfs|ntp|snmp|iscsi|asup|cloud"
-    # List of possible services that can be filtered (e.g., ntp, snmp, license-server, iscsi, log, asup, nfs, etc.)
-
-    sort = "name"  # Sort the services by their name
-    params = {
-        "filter": filter_expression,  # Apply the filter to select specific services
-        "sort": sort  # Sort the results by "name"
-    }
-
-    # Send a GET request to fetch the services
-    response_data = requests.get(url, headers=headers, params=params, verify=False)
-
-    # Check if the request was successful
-    if response_data.status_code != requests.codes.ok:
-        logger.error(f'{response_data.status_code}')  # Print error if request fails
-        logger.error(response_data.text)  # Print additional error details from the response
-
-    # Parse the response JSON to extract services data
-    response_data_json = response_data.json()
-
-    # Define the fields to be filtered from the services data
-    fields = [
-        "name",
-        "status"
-    ]
-
-    # Extract and filter the services list from the response JSON
-    content_entries = response_data_json.get('services', [])  # Get services or an empty list if no services found
-    filtered_results = fn.filter_entries(content_entries, fields)  # Filter the relevant fields using a helper function
-
-    return filtered_results  # Return the filtered list of services
-
-
-
 def dd_get_replicas(instance, api_port, access_token, cert_hash):
     """
     Fetch MTree replication information from a Data Domain instance.
@@ -358,11 +303,6 @@ def getinfo(dcocfg, **kwargs):
         logger.info("INFO: Fetching active alerts...")
         data = dd_get_alerts(instance, api_port, access_token, cert_hash)
         dcocfg.save_json(data, system, instance, "activeAlerts")
-
-        # Fetch the state of services for the instance
-        logger.info("INFO: Fetching state of services...")
-        data = dd_get_services(instance, api_port, access_token, cert_hash)
-        dcocfg.save_json(data, system, instance, "services")
 
         # Fetch the state of replicas for the instance
         logger.info("INFO: Fetching state of replicas...")
