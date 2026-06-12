@@ -11,7 +11,7 @@ color_alertsBySeverityVal = functools.partial(
     DCOreport.key_color_value,
     key_color={
         "Critical": DCOreport.PASTEL_RED,
-        "Warning": DCOreport.PASTEL_ORANGE,
+        "Warning": DCOreport.PASTEL_YELLOW,
         "Unknown": DCOreport.YELLOW,
         "OK": DCOreport.GREEN})
 

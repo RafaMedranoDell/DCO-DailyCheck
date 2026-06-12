@@ -46,6 +46,7 @@ CHANGELOG = [
     ("",       "PPCR",    "Hardened format_duration() to safely return 'N/A' for NaN/null/infinite values"),
     ("1.16.0", "CONFIG",  "Added auto-update capability for SSL certificate hashes with security toggle"),
     ("1.16.1", "DD",      "Increased precision of the capacity used percentage from 1 to 2 decimals"),
+    ("",       "IDRAC",   "Fixed Log Status color for Warning to use standard pastel yellow"),
 ]
 
 # Get the logger for this module
