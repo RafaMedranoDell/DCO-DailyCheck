@@ -287,7 +287,7 @@ def process_tiers_status(data, system, instance, dcocfg):
     # Calculate the occupancy percentage
     df_processed['percent'] = df_processed.apply(
         lambda row: 0.0 if row['dc_total'] == 0 or row['dc_used'] == 0
-        else round((row['dc_used'] / row['dc_total']) * 100, 1),
+        else round((row['dc_used'] / row['dc_total']) * 100, 2),
         axis=1
     )
 

@@ -42,7 +42,7 @@ def create_DCI(dcocfg, dcorpt):
         if not tiersStatus.data.empty:
             tiersStatus = DCOreport.apply_styler_map(tiersStatus, color_tiersStatus_percent, subset=["% Used"])
             tiersStatus = tiersStatus.format({
-                "% Used": "{:.1f}",
+                "% Used": "{:.2f}",
                 "Total (TB)": "{:.2f}",
                 "Used (TB)": "{:.2f}",
                 "Available (TB)": "{:.2f}"

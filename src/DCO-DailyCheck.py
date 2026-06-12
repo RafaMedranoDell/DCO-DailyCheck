@@ -10,7 +10,7 @@ from getpass import getpass
 import common.functions as fn
 
 # Script version and changelog
-__version__ = "1.16.0"
+__version__ = "1.16.1"
 
 CHANGELOG = [
     ("1.0",  "SCRIPT",  "Initial baseline version"),
@@ -45,6 +45,7 @@ CHANGELOG = [
     ("1.15.2", "PPCR",    "Fixed crash when a PPCR policy has no modification date (null modifiedDate)"),
     ("",       "PPCR",    "Hardened format_duration() to safely return 'N/A' for NaN/null/infinite values"),
     ("1.16.0", "CONFIG",  "Added auto-update capability for SSL certificate hashes with security toggle"),
+    ("1.16.1", "DD",      "Increased precision of the capacity used percentage from 1 to 2 decimals"),
 ]
 
 # Get the logger for this module
