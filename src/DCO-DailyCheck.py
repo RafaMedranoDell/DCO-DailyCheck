@@ -47,6 +47,8 @@ CHANGELOG = [
     ("1.16.0", "CONFIG",  "Added auto-update capability for SSL certificate hashes with security toggle"),
     ("1.16.1", "DD",      "Increased precision of the capacity used percentage from 1 to 2 decimals"),
     ("",       "IDRAC",   "Fixed Log Status color for Warning to use standard pastel yellow"),
+    ("",       "DD",      "Fixed System Alerts color mapping to display warnings in pastel yellow"),
+    ("",       "DD",      "Fixed a crash in DDreportDCI caused by unhandled alert severities"),
 ]
 
 # Get the logger for this module

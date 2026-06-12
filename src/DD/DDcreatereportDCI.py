@@ -13,6 +13,7 @@ def color_alertsDetail(row):
         return [DCOreport.PASTEL_RED] * len(row)
     elif row['Severity'] in ['WARNING', 'NOTICE', 'INFO', 'DEBUG']:
         return [DCOreport.PASTEL_YELLOW] * len(row)
+    return [''] * len(row)
 
 
 

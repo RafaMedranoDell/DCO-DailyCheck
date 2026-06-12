@@ -13,9 +13,25 @@ sectionStyle = functools.partial(
         'Capacity Status': 'font-weight: bold; background-color: #e0e0e0;'}
 )
 
-colorByStatus = functools.partial(
+colorByFilesystemStatus = functools.partial(
     DCOreport.key_color_value,
     key_color={"OK": DCOreport.PASTEL_GREEN},
+    def_color=DCOreport.PASTEL_RED
+)
+
+colorByAlertStatus = functools.partial(
+    DCOreport.key_color_value,
+    key_color={
+        "OK": DCOreport.PASTEL_GREEN,
+        "WARNING": DCOreport.PASTEL_YELLOW,
+        "NOTICE": DCOreport.PASTEL_YELLOW,
+        "INFO": DCOreport.PASTEL_YELLOW,
+        "DEBUG": DCOreport.PASTEL_YELLOW,
+        "EMERGENCY": DCOreport.PASTEL_RED,
+        "ALERT": DCOreport.PASTEL_RED,
+        "CRITICAL": DCOreport.PASTEL_RED,
+        "ERROR": DCOreport.PASTEL_RED
+    },
     def_color=DCOreport.PASTEL_RED
 )
 
@@ -85,8 +101,8 @@ def create_DC(dcocfg, dcorpt):
         summaryDfsty = DCOreport.format_by_rowid(
             summaryDfsty,
             [
-                ("System Alerts", colorByStatus),
-                ("Filesystem Status", colorByStatus),
+                ("System Alerts", colorByAlertStatus),
+                ("Filesystem Status", colorByFilesystemStatus),
                 ("Filesystem Uptime", colorByUptime),
                 ("Active Tier Used (%)", colorByPercent),
                 ("Cloud Tier Used (%)", colorByPercent),
