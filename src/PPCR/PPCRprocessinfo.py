@@ -108,7 +108,10 @@ def process_jobs_by_type(df, jobType, dcocfg):
     tasks_nosucccessfull = pd.json_normalize(tasks_nosucccessfull["tasks"])
     # Add columns if not present
     tasks_nosucccessfull = tasks_nosucccessfull.reindex(columns=["taskAction", "taskStatus", "jobID"])
-    tasks_nosucccessfull = tasks_nosucccessfull[tasks_nosucccessfull["taskStatus"] != "Success"].set_index("jobID")
+    tasks_nosucccessfull = tasks_nosucccessfull[
+        (tasks_nosucccessfull["taskStatus"] != "Success") & 
+        (tasks_nosucccessfull["taskStatus"] != "Ready")
+    ].set_index("jobID")
 
     # Join both non succesfull jobs and tasks in one dataframe using index "id" and "jobID"
     jobs_tasks_nosucccessfull = jobs_nosucccessfull.join(tasks_nosucccessfull, lsuffix="_job", rsuffix="_task")
