@@ -10,7 +10,7 @@ from getpass import getpass
 import common.functions as fn
 
 # Script version and changelog
-__version__ = "1.16.1"
+__version__ = "1.16.2"
 
 CHANGELOG = [
     ("1.0",  "SCRIPT",  "Initial baseline version"),
@@ -50,6 +50,7 @@ CHANGELOG = [
     ("",       "DD",      "Fixed System Alerts color mapping to display warnings in pastel yellow"),
     ("",       "DD",      "Fixed a crash in DDreportDCI caused by unhandled alert severities"),
     ("",       "DD",      "Optimized module by removing dead code and unused API calls for alerts and services"),
+    ("1.16.2", "PPCR",    "Removed non-existent columns from Alert Detail and filtered Ready tasks from Protection Jobs"),
 ]
 
 # Get the logger for this module

@@ -28,11 +28,9 @@ def process_alerts(data, system, instance, dcocfg):
     dcocfg.save_dataframe_to_csv(severity_counts, system, instance, "alertSummary")
 
     selected_columns = {
-        'type': 'Type',
         'category': 'Category',
         'severity': 'Severity',
         'creationDate': 'Creation Date',
-        'modifiedDate': 'Modified Date',
         'acknowledged': 'Acknowledged',
         'summary': 'Summary',
         'remedy': 'Remedy'
@@ -40,7 +38,7 @@ def process_alerts(data, system, instance, dcocfg):
     system_status = fn.get_most_critical(active_alerts[active_alerts["category"] == "system"], "severity", ["Critical", "Warning"], "OK")
     security_status = fn.get_most_critical(active_alerts[active_alerts["category"] == "security"], "severity", ["Critical", "Warning"], "OK")
 
-    active_alerts = fn.df_timestamps_to_dates(active_alerts, ["creationDate", "modifiedDate"])
+    active_alerts = fn.df_timestamps_to_dates(active_alerts, ["creationDate"])
     active_alerts = active_alerts.reindex(columns=selected_columns.keys()).rename(columns=selected_columns)
 
     # Rename and select columns, and save to the CSV
@@ -110,7 +108,10 @@ def process_jobs_by_type(df, jobType, dcocfg):
     tasks_nosucccessfull = pd.json_normalize(tasks_nosucccessfull["tasks"])
     # Add columns if not present
     tasks_nosucccessfull = tasks_nosucccessfull.reindex(columns=["taskAction", "taskStatus", "jobID"])
-    tasks_nosucccessfull = tasks_nosucccessfull[tasks_nosucccessfull["taskStatus"] != "Success"].set_index("jobID")
+    tasks_nosucccessfull = tasks_nosucccessfull[
+        (tasks_nosucccessfull["taskStatus"] != "Success") & 
+        (tasks_nosucccessfull["taskStatus"] != "Ready")
+    ].set_index("jobID")
 
     # Join both non succesfull jobs and tasks in one dataframe using index "id" and "jobID"
     jobs_tasks_nosucccessfull = jobs_nosucccessfull.join(tasks_nosucccessfull, lsuffix="_job", rsuffix="_task")
