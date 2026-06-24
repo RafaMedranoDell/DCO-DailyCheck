@@ -36,6 +36,8 @@ def process_alerts(data, system, instance, dcocfg):
         'remedy': 'Remedy'
     }
     system_status = fn.get_most_critical(active_alerts[active_alerts["category"] == "system"], "severity", ["Critical", "Warning"], "OK")
+    storage_status = fn.get_most_critical(active_alerts[active_alerts["category"] == "storage"], "severity", ["Critical", "Warning"], "OK")
+    system_storage_status = fn.get_most_critical(active_alerts[active_alerts["category"].isin(["system", "storage"])], "severity", ["Critical", "Warning"], "OK")
     security_status = fn.get_most_critical(active_alerts[active_alerts["category"] == "security"], "severity", ["Critical", "Warning"], "OK")
 
     active_alerts = fn.df_timestamps_to_dates(active_alerts, ["creationDate"])
@@ -44,7 +46,7 @@ def process_alerts(data, system, instance, dcocfg):
     # Rename and select columns, and save to the CSV
     dcocfg.save_dataframe_to_csv(active_alerts, system, instance, "alertDetail")
 
-    return system_status, security_status
+    return system_storage_status, security_status, system_status, storage_status
 
 def process_policies(data, system, instance, dcocfg):
     policies = pd.DataFrame(data)
@@ -282,7 +284,7 @@ def proccess_info(dcocfg):
         logger.info(f'Processing info from: "{instance}"')
 
         # Alerts
-        system_alerts_status, security_alerts_status = fn.process_if_not_empty(process_alerts, system, instance, "alerts", dcocfg, na_count=2)
+        system_storage_alerts_status, security_alerts_status, system_alerts_status, storage_alerts_status = fn.process_if_not_empty(process_alerts, system, instance, "alerts", dcocfg, na_count=4)
 
         system_jobs_status = fn.process_if_not_empty(process_system_jobs, system, instance, "policies_jobs", dcocfg)
         protection_jobs_status = fn.process_if_not_empty(process_protection_jobs, system, instance, "policies_jobs", dcocfg)
@@ -298,7 +300,7 @@ def proccess_info(dcocfg):
         # Generate a CSV with the instance summary
         instance_summary =[
             ["System Status", ""],
-            ["System Alerts", system_alerts_status],
+            ["System & Storage Alerts", system_storage_alerts_status],
             ["Security Alerts", security_alerts_status],
             ["Jobs Status", ""],
             ["System Jobs", system_jobs_status],
