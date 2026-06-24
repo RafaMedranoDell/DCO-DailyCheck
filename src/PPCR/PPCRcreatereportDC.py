@@ -66,7 +66,7 @@ def create_DC(dcocfg, dcorpt):
         summaryDfsty = DCOreport.format_by_rowid(
             summaryDfsty,
             [
-                ("System Alerts", colorAlertsBySeverityVal),
+                ("System & Storage Alerts", colorAlertsBySeverityVal),
                 ("Security Alerts", colorAlertsBySeverityVal),
                 ("System Jobs", colorAlertsBySeverityVal),
                 ("Protection Jobs", colorAlertsBySeverityVal),
